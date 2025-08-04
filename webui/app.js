@@ -1,33 +1,51 @@
-// token prompt retained
-const token =
-  localStorage.getItem('portkeyToken') || prompt('Auth token (admin):');
+const token = localStorage.getItem('portkeyToken') || prompt('Auth token (admin):');
 localStorage.setItem('portkeyToken', token);
 
 const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
 const ws = new WebSocket(`${protocol}//${location.host}/api/ws?token=${token}`);
-
 const tbody = document.querySelector('#log-table tbody');
 const filterInput = document.getElementById('filter');
+const tunnelSpan = document.getElementById('tunnel-list');
+const loadMoreBtn = document.getElementById('load-more');
+const toggleModeBtn = document.getElementById('toggle-mode');
 
 let filterText = '';
+let showCount = 100; // pagination size
+
 filterInput.addEventListener('input', () => {
   filterText = filterInput.value.toLowerCase();
-  [...tbody.rows].forEach(row => {
-    if (row.classList.contains('details')) return;
-    row.style.display = row.dataset.path.toLowerCase().includes(filterText)
-      ? ''
-      : 'none';
-  });
+  applyFilter();
 });
 
+toggleModeBtn.addEventListener('click', () => {
+  document.body.classList.toggle('dark');
+});
+
+loadMoreBtn.addEventListener('click', () => {
+  showCount += 100;
+  applyFilter();
+});
+
+function applyFilter() {
+  let shown = 0;
+  [...tbody.querySelectorAll('tr.main')].forEach(row => {
+    const path = row.dataset.path.toLowerCase();
+    const match = path.includes(filterText);
+    if (match && shown < showCount) {
+      row.style.display = '';
+      shown++;
+    } else {
+      row.style.display = 'none';
+      if (row.nextSibling && row.nextSibling.classList.contains('details')) row.nextSibling.style.display = 'none';
+    }
+  });
+}
+
 function addRow(e) {
-  const arrow = document.createElement('span');
-  arrow.textContent = '▶';
-  arrow.style.cursor = 'pointer';
   const tr = document.createElement('tr');
+  tr.className = 'main';
   tr.dataset.path = e.path;
-  tr.innerHTML =
-    `<td>${new Date(e.timestamp).toLocaleTimeString()}</td>` +
+  tr.innerHTML = `<td>${new Date(e.timestamp).toLocaleTimeString()}</td>` +
     `<td>${e.subdomain}</td>` +
     `<td>${e.method}</td>` +
     `<td>${e.path}</td>` +
@@ -38,10 +56,7 @@ function addRow(e) {
   tr.appendChild(arrowTd);
   tr.addEventListener('click', () => toggleDetails(tr, e));
   tbody.prepend(tr);
-  if (filterText && !e.path.toLowerCase().includes(filterText))
-    tr.style.display = 'none';
-  if (tbody.querySelectorAll('tr:not(.details)').length > 1000)
-    tbody.deleteRow(-1);
+  applyFilter();
 }
 
 function toggleDetails(row, entry) {
@@ -55,24 +70,31 @@ function toggleDetails(row, entry) {
   const cell = document.createElement('td');
   cell.colSpan = 6;
   row.querySelector('.arrow').textContent = '▼';
-  const pre = document.createElement('pre');
   let bodyVal = entry.body;
-  try {
-    bodyVal = JSON.parse(entry.body);
-  } catch (e) {}
-  pre.textContent = JSON.stringify(
-    { headers: entry.headers, body: bodyVal },
-    null,
-    2
-  );
+  try { bodyVal = JSON.parse(entry.body); } catch {}
+  const pre = document.createElement('pre');
+  pre.textContent = JSON.stringify({ headers: entry.headers, body: bodyVal }, null, 2);
   cell.appendChild(pre);
   detail.appendChild(cell);
   row.after(detail);
 }
 
+// initial load (fetch latest logs)
 fetch(`/api/requests?token=${token}`)
   .then(r => r.json())
-  .then(arr => arr.forEach(addRow));
+  .then(arr => {
+    arr.slice(-showCount).forEach(addRow);
+  });
 
+// live updates
 ws.onmessage = evt => addRow(JSON.parse(evt.data));
 ws.onerror = () => console.error('WebSocket error');
+
+// tunnel list poll
+setInterval(() => {
+  fetch(`/api/tunnels?token=${token}`)
+    .then(r => r.json())
+    .then(arr => {
+      tunnelSpan.textContent = `Tunnels: ${arr.join(', ')}`;
+    });
+}, 5000);

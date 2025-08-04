@@ -4,47 +4,33 @@
     <meta charset="utf-8" />
     <title>Portkey Live Logs</title>
     <style>
-      body {
-        font-family: sans-serif;
-        margin: 20px;
-      }
-      #filter {
-        margin-bottom: 10px;
-        padding: 4px 8px;
-        width: 300px;
-      }
-      table {
-        border-collapse: collapse;
-        width: 100%;
-      }
-      th,
-      td {
-        border: 1px solid #ccc;
-        padding: 4px 8px;
-      }
-      th {
-        background: #f0f0f0;
-      }
-      tr:not(.details) {
-        cursor: pointer;
-      }
-      tr:not(.details):hover {
-        background: #f7f7f7;
-      }
+      :root { --bg: #fff; --fg: #000; --table-h: #f0f0f0; }
+      .dark { --bg: #1e1e1e; --fg: #ddd; --table-h: #333; }
+      body { font-family: sans-serif; margin: 20px; background: var(--bg); color: var(--fg); }
+      #controls { margin-bottom: 10px; display: flex; gap: 10px; align-items: center; }
+      #filter { padding: 4px 8px; width: 300px; }
+      table { border-collapse: collapse; width: 100%; }
+      th, td { border: 1px solid #555; padding: 4px 8px; }
+      th { background: var(--table-h); }
+      tr:not(.details) { cursor: pointer; }
+      tr:not(.details):hover { background: rgba(127,127,127,0.1); }
+      #tunnel-list { font-size: 0.9em; }
+      pre { white-space: pre-wrap; }
+      button { padding: 4px 10px; }
     </style>
   </head>
   <body>
     <h1>Live Request Logs</h1>
-    <input id="filter" placeholder="Filter by path…" />
+    <div id="controls">
+      <input id="filter" placeholder="Filter by path…" />
+      <button id="toggle-mode">Dark&nbsp;Mode</button>
+      <button id="load-more">Load&nbsp;More</button>
+      <span id="tunnel-list"></span>
+    </div>
     <table id="log-table">
       <thead>
         <tr>
-          <th>Time</th>
-          <th>Subdomain</th>
-          <th>Method</th>
-          <th>Path</th>
-          <th>Status</th>
-          <th></th>
+          <th>Time</th><th>Subdomain</th><th>Method</th><th>Path</th><th>Status</th><th></th>
         </tr>
       </thead>
       <tbody></tbody>
