@@ -15,9 +15,9 @@ import (
 
 	"portkey/internal/auth"
 	"portkey/internal/caddysetup"
+	"portkey/internal/logstore"
 	"portkey/internal/registry"
 	"portkey/internal/tunnel"
-    "portkey/internal/logstore"
 )
 
 // Client wraps a websocket connection and outstanding request map
@@ -58,6 +58,11 @@ func main() {
     }
 
     mux := http.NewServeMux()
+    // Web UI static files
+    if *enableWebUI {
+        fs := http.FileServer(http.Dir("webui"))
+        mux.Handle("/ui/", http.StripPrefix("/ui/", fs))
+    }
     // Web UI websocket endpoint
     if *enableWebUI {
         mux.HandleFunc("/api/ws", func(w http.ResponseWriter, r *http.Request) {

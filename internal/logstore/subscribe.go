@@ -1,7 +1,5 @@
 package logstore
 
-
-
 // subscription support
 func (s *Store) Subscribe() (<-chan Entry, func()) {
     ch := make(chan Entry, 100)
