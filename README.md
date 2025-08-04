@@ -10,7 +10,8 @@ This README documents the **Iteration 1** milestone – a minimal but functional
 - `portkey-server` – accepts WebSocket tunnel connections and routes HTTP traffic to them.
 - `portkey-cli` – establishes a persistent WebSocket tunnel and forwards requests to your local server.
 - Sub-domain registry (in-memory, concurrency-safe).
-- Black-box integration test proving end-to-end request flow.
+- **Token-based authentication & authorization** with YAML config.
+- Black-box integration test proving end-to-end request flow (with tokens).
 - Container images via multi-stage Dockerfiles.
 
 ---
@@ -22,8 +23,19 @@ This README documents the **Iteration 1** milestone – a minimal but functional
 make build          # or: go build -o bin/portkey-server ./cmd/server
                     #       go build -o bin/portkey-cli    ./cmd/client
 
-# 2. Start the server (listen on 8080)
-./bin/portkey-server -addr :8080
+# 2. Prepare auth file (tokens & roles)
+cat > auth.yaml <<EOF
+tokens:
+  - token: abc123
+    subdomains: ["project1"]
+    role: user
+  - token: admin456
+    subdomains: ["*"]
+    role: admin
+EOF
+
+# 3. Start the server (listen on 8080)
+./bin/portkey-server -addr :8080 --auth-file auth.yaml
 
 # 3. Start your local app (example React dev server)
 cd myapp && npm run dev           # assumes it listens on :3000
@@ -31,7 +43,8 @@ cd myapp && npm run dev           # assumes it listens on :3000
 # 4. Run portkey-cli to expose it
 ./bin/portkey-cli --server http://localhost:8080 \
                 --subdomain myapp \
-                --port 3000
+                --port 3000 \
+                --auth-token admin456
 
 # 5. From another terminal / browser
 curl -H "Host: myapp.localhost" http://localhost:8080/
@@ -103,8 +116,7 @@ Then start the CLI container and point it at the server container’s address.
 
 ## 🚧 Next Iterations
 
-1. **Token-Based Authentication** – secure tunnel creation.
-2. Embedded Caddy for TLS termination.
+1. Embedded Caddy for TLS termination.
 3. Web UI for real-time request logging.
 
 Refer to `SPEC.md` for the full roadmap.
