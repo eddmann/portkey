@@ -1,0 +1,46 @@
+name: Publish
+
+on:
+  release:
+    types:
+      - published
+
+concurrency: publish
+
+jobs:
+  docker:
+    name: Publish Docker images
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Download images
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release download ${{ github.event.release.tag_name }} -p 'portkey-*-${{ github.event.release.tag_name }}-docker.tar'
+
+      - name: Load & tag images
+        run: |
+          for TAR in *-${{ github.event.release.tag_name }}-docker.tar; do
+            IMG_NAME=$(echo "$TAR" | sed -E 's/-(cli|server)-.*/-\1/')
+            docker load -i "$TAR"
+          done
+          docker tag ghcr.io/eddmann/portkey-cli:latest ghcr.io/eddmann/portkey-cli:${{ github.event.release.tag_name }}
+          docker tag ghcr.io/eddmann/portkey-server:latest ghcr.io/eddmann/portkey-server:${{ github.event.release.tag_name }}
+
+      - name: Publish images
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          docker push ghcr.io/eddmann/portkey-cli:latest
+          docker push ghcr.io/eddmann/portkey-cli:${{ github.event.release.tag_name }}
+          docker push ghcr.io/eddmann/portkey-server:latest
+          docker push ghcr.io/eddmann/portkey-server:${{ github.event.release.tag_name }}
+
+  binaries:
+    name: Upload binaries as release assets (redundancy check)
+    runs-on: ubuntu-22.04
+    if: false # binaries already uploaded in build workflows; keep job as template for future expansions
+    steps:
+      - run: echo "Binaries already attached during build stage."

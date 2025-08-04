@@ -1,0 +1,33 @@
+name: Test
+
+on:
+  push:
+    branches-ignore:
+      - draft-release
+  pull_request:
+
+jobs:
+  unit-and-integration-tests:
+    name: Run unit & e2e tests
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.22
+
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.OS }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.OS }}-go-
+
+      - name: Run tests
+        run: make test
