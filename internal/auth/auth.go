@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"os"
 
+	"path"
+
 	"gopkg.in/yaml.v3"
-    "path"
 )
 
 type TokenEntry struct {

@@ -19,6 +19,7 @@ var (
     port     = flag.Int("port", 3000, "Local port to expose")
     server   = flag.String("server", "http://localhost:8080", "Portkey server URL")
     subdomain = flag.String("subdomain", "myapp", "Requested subdomain")
+    authToken = flag.String("auth-token", "", "Auth token for server")
 )
 
 func main() {
@@ -37,6 +38,9 @@ func main() {
     wsURL.Path = "/connect"
     q := wsURL.Query()
     q.Set("subdomain", *subdomain)
+    if *authToken != "" {
+        q.Set("token", *authToken)
+    }
     wsURL.RawQuery = q.Encode()
 
     conn, _, err := websocket.DefaultDialer.Dial(wsURL.String(), nil)

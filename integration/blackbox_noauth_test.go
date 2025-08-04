@@ -1,19 +1,19 @@
 package integration
 
 import (
-    "context"
-    "fmt"
-    "io"
-    
-    "net/http"
-    "net/http/httptest"
-    "os"
-    "os/exec"
-    "path/filepath"
-    
-    "strings"
-    "testing"
-    "time"
+	"context"
+	"fmt"
+	"io"
+
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"os/exec"
+	"path/filepath"
+
+	"strings"
+	"testing"
+	"time"
 )
 
 func TestBlackboxNoAuth(t *testing.T) {

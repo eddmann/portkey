@@ -61,7 +61,8 @@ func TestBlackboxTunnel(t *testing.T) {
     defer cancel()
 
     // Start server process
-    serverCmd := exec.CommandContext(ctx, serverBin, "-addr", fmt.Sprintf(":%d", serverPort))
+    authPath := filepath.Join("..", "auth.yaml")
+    serverCmd := exec.CommandContext(ctx, serverBin, "-addr", fmt.Sprintf(":%d", serverPort), "-auth-file", authPath)
     serverCmd.Stdout = os.Stdout
     serverCmd.Stderr = os.Stderr
     if err := serverCmd.Start(); err != nil {
@@ -73,7 +74,7 @@ func TestBlackboxTunnel(t *testing.T) {
 
     // Start CLI process
     serverURL := fmt.Sprintf("http://127.0.0.1:%d", serverPort)
-    cliCmd := exec.CommandContext(ctx, cliBin, "--server", serverURL, "--subdomain", "myapp", "--port", localPort)
+    cliCmd := exec.CommandContext(ctx, cliBin, "--server", serverURL, "--subdomain", "myapp", "--port", localPort, "--auth-token", "admin456")
     cliCmd.Stdout = os.Stdout
     cliCmd.Stderr = os.Stderr
     if err := cliCmd.Start(); err != nil {

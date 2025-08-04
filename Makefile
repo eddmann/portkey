@@ -28,11 +28,11 @@ build-client:
 
 run-server: build-server
 	@echo "Starting portkey-server on :8080"
-	@$(SERVER_BIN) -addr :8080
+	@$(SERVER_BIN) -addr :8080 -auth-file auth.yaml
 
 run-client: build-client
 	@echo "Starting portkey-cli forwarding localhost:3000 as myapp"
-	@$(CLIENT_BIN) --server http://localhost:8080 --subdomain myapp --port 3000
+	@$(CLIENT_BIN) --server http://localhost:8080 --subdomain myapp --port 3000 --auth-token admin456
 
 # Dummy local HTTP server that replies with "pong"
 dummy-server:

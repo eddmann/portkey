@@ -53,13 +53,13 @@ curl -H "Host: myapp.localhost" http://localhost:8080/
 You should see your local application’s response.
 
 #### Without Authentication
+
 If you prefer open access (for local testing), simply skip the `--auth-file` flag on the server and `--auth-token` flag on the client:
 
 ```bash
 ./bin/portkey-server -addr :8080              # auth disabled
 ./bin/portkey-cli --server http://localhost:8080 --subdomain public --port 3000
 ```
-
 
 ---
 

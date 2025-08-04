@@ -1,0 +1,7 @@
+tokens:
+  - token: abc123
+    subdomains: ['project1']
+    role: user
+  - token: admin456
+    subdomains: ['*']
+    role: admin
