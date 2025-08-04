@@ -54,7 +54,7 @@ You should see your local application’s response.
 
 #### Without Authentication
 
-If you prefer open access (for local testing), simply skip the `--auth-file` flag on the server and `--auth-token` flag on the client:
+If you prefer open access (for local testing), simply skip the `--auth-file` flag on the server and `--auth-token` flag on the client. The server accepts any subdomain without validation:
 
 ```bash
 ./bin/portkey-server -addr :8080              # auth disabled
@@ -119,7 +119,7 @@ Then start the CLI container and point it at the server container’s address.
 ## 🧪 Tests
 
 - Unit tests: `go test ./...`
-- Black-box integration test: `go test ./integration -v`
+- Black-box integration tests (auth & no-auth): `go test ./integration -v`
 
 ---
 
