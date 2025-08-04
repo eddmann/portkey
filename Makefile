@@ -32,26 +32,10 @@ run-client: build-client
 	@echo "Starting portkey-cli forwarding localhost:3000 as myapp"
 	@$(CLIENT_BIN) --server http://localhost:8080 --subdomain myapp --port 3000
 
-# Dummy local HTTP server that replies with \"pong\"
-.ONESHELL:
+# Dummy local HTTP server that replies with "pong"
 dummy-server:
 	@echo "Starting dummy HTTP server on :3000 (responds with 'pong')"
-	python3 - <<-'PY'
-	import http.server, socketserver, sys
-	PORT = 3000
-	class Handler(http.server.SimpleHTTPRequestHandler):
-	    def do_GET(self):
-	        self.send_response(200)
-	        self.send_header('Content-type', 'text/plain')
-	        self.end_headers()
-	        self.wfile.write(b'pong')
-	with socketserver.TCPServer(('', PORT), Handler) as httpd:
-	    print(f"Serving dummy app at http://localhost:{PORT}")
-	    try:
-	        httpd.serve_forever()
-	    except KeyboardInterrupt:
-	        sys.exit(0)
-	PY
+	@node -e "require('http').createServer((req,res)=>{res.writeHead(200,{ 'Content-Type':'text/plain'}); res.end('pong');}).listen(3000,()=>console.log('Dummy server listening on http://localhost:3000'));"
 
 # ---------- Tests ----------
 
