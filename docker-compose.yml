@@ -1,10 +1,7 @@
-version: '3.8'
 services:
   dummy:
     image: hashicorp/http-echo
     command: ['-text=pong']
-    ports:
-      - '3000:5678'
   server:
     build: .
     image: portkey/server:local
@@ -14,6 +11,7 @@ services:
       - '8080:8080'
     volumes:
       - ./auth.yaml:/auth.yaml:ro
+    entrypoint: []
     command:
       [
         '/portkey-server',
@@ -30,6 +28,7 @@ services:
     image: portkey/cli:local
     depends_on:
       - server
+    entrypoint: []
     command:
       [
         '/portkey-cli',

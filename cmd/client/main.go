@@ -31,7 +31,7 @@ func main() {
         log.Fatalf("invalid server url: %v", err)
     }
 
-    log.Printf("Connecting to %s for subdomain %s (forwarding localhost:%d)", u.String(), *subdomain, *port)
+    log.Printf("Connecting to %s for subdomain %s (forwarding %s:%d)", *server, *subdomain, *host, *port)
 
     // Dial websocket
     wsURL := u
