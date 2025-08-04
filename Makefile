@@ -33,23 +33,24 @@ run-client: build-client
 	@$(CLIENT_BIN) --server http://localhost:8080 --subdomain myapp --port 3000
 
 # Dummy local HTTP server that replies with \"pong\"
+.ONESHELL:
 dummy-server:
 	@echo "Starting dummy HTTP server on :3000 (responds with 'pong')"
-	@python3 - <<'PY'
-import http.server, socketserver, sys
-PORT = 3000
-class Handler(http.server.SimpleHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.send_header('Content-type', 'text/plain')
-        self.end_headers()
-        self.wfile.write(b'pong')
-with socketserver.TCPServer(('', PORT), Handler) as httpd:
-    print(f"Serving dummy app at http://localhost:{PORT}")
-    try:
-        httpd.serve_forever()
-    except KeyboardInterrupt:
-        sys.exit(0)
+	python3 - <<'PY'
+	import http.server, socketserver, sys
+	PORT = 3000
+	class Handler(http.server.SimpleHTTPRequestHandler):
+	    def do_GET(self):
+	        self.send_response(200)
+	        self.send_header('Content-type', 'text/plain')
+	        self.end_headers()
+	        self.wfile.write(b'pong')
+	with socketserver.TCPServer(('', PORT), Handler) as httpd:
+	    print(f"Serving dummy app at http://localhost:{PORT}")
+	    try:
+	        httpd.serve_forever()
+	    except KeyboardInterrupt:
+	        sys.exit(0)
 PY
 
 # ---------- Tests ----------
