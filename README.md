@@ -11,7 +11,7 @@ This README documents the **Iteration 1** milestone – a minimal but functional
 - `portkey-cli` – establishes a persistent WebSocket tunnel and forwards requests to your local server.
 - Sub-domain registry (in-memory, concurrency-safe).
 - **Token-based authentication & authorization** with YAML config.
-- Black-box integration test proving end-to-end request flow (with tokens).
+- Black-box integration tests: one with token auth, one with auth disabled.
 - Container images via multi-stage Dockerfiles.
 
 ---
@@ -51,6 +51,15 @@ curl -H "Host: myapp.localhost" http://localhost:8080/
 ```
 
 You should see your local application’s response.
+
+#### Without Authentication
+If you prefer open access (for local testing), simply skip the `--auth-file` flag on the server and `--auth-token` flag on the client:
+
+```bash
+./bin/portkey-server -addr :8080              # auth disabled
+./bin/portkey-cli --server http://localhost:8080 --subdomain public --port 3000
+```
+
 
 ---
 
@@ -117,6 +126,6 @@ Then start the CLI container and point it at the server container’s address.
 ## 🚧 Next Iterations
 
 1. Embedded Caddy for TLS termination.
-3. Web UI for real-time request logging.
+2. Web UI for real-time request logging.
 
 Refer to `SPEC.md` for the full roadmap.
