@@ -56,8 +56,12 @@ function toggleDetails(row, entry) {
   cell.colSpan = 6;
   row.querySelector('.arrow').textContent = '▼';
   const pre = document.createElement('pre');
+  let bodyVal = entry.body;
+  try {
+    bodyVal = JSON.parse(entry.body);
+  } catch (e) {}
   pre.textContent = JSON.stringify(
-    { headers: entry.headers, body: entry.body },
+    { headers: entry.headers, body: bodyVal },
     null,
     2
   );
