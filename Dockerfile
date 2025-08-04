@@ -9,5 +9,6 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /portkey-server ./cmd/server
 # --- Final stage ---
 FROM scratch
 COPY --from=build /portkey-server /portkey-server
+COPY --from=build /src/webui /webui
 EXPOSE 80 443 8080
 ENTRYPOINT ["/portkey-server"]
