@@ -1,0 +1,26 @@
+version: "3.8"
+services:
+  dummy:
+    image: hashicorp/http-echo
+    command: ["-text=pong"]
+    ports:
+      - "3000:5678"
+  server:
+    build: .
+    image: portkey/server:local
+    depends_on:
+      - dummy
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./auth.yaml:/auth.yaml:ro
+    command: ["/portkey-server", "-addr", ":8080", "--auth-file", "/auth.yaml", "--enable-web-ui"]
+  cli:
+    build:
+      context: .
+      dockerfile: Dockerfile.cli
+    image: portkey/cli:local
+    depends_on:
+      - server
+    command: ["/portkey-cli", "--server", "http://server:8080", "--subdomain", "myapp", "--port", "3000", "--auth-token", "admin456"]
+    network_mode: service:server
