@@ -35,6 +35,7 @@ var (
     caddyDomain = flag.String("caddy-domain", "", "Domain to get TLS cert for")
     caddyEmail = flag.String("caddy-email", "", "Email for Let's Encrypt account")
     enableWebUI = flag.Bool("enable-web-ui", false, "Enable Web UI and live request logging")
+    logStoreType = flag.String("log-store", "memory", "Log store backend (memory|sqlite)")
 )
 
 func main() {
@@ -53,10 +54,15 @@ func main() {
     }
 
     reg := registry.New()
-    var store *logstore.Store
-    if *enableWebUI {
-        store = logstore.New(1000)
+    memStore := logstore.New(1000)
+    var sqlStore *logstore.SQLite
+    if *logStoreType == "sqlite" {
+        s, err := logstore.NewSQLite("logs.db")
+        if err != nil { log.Fatalf("sqlite: %v", err) }
+        sqlStore = s
+        log.Printf("SQLite logstore enabled (logs.db)")
     }
+    storeEnabled := *enableWebUI || sqlStore != nil
 
     mux := http.NewServeMux()
     // Web UI static files
@@ -71,21 +77,31 @@ func main() {
                 http.Error(w, "forbidden", http.StatusForbidden)
                 return
             }
-            if store == nil {
+            if !storeEnabled {
                 http.Error(w, "logstore disabled", http.StatusServiceUnavailable)
                 return
             }
             id := strings.TrimPrefix(r.URL.Path, "/api/requests/")
             w.Header().Set("Content-Type", "application/json")
             if id != "" && id != "/api/requests" {
-                if e, ok := store.Get(id); ok {
+                if e, ok := memStore.Get(id); ok {
                     json.NewEncoder(w).Encode(e)
                     return
+                }
+                if sqlStore != nil {
+                    entries, _ := sqlStore.All()
+                    for _, ent := range entries { if ent.ID == id { json.NewEncoder(w).Encode(ent); return } }
                 }
                 http.NotFound(w, r)
                 return
             }
-            json.NewEncoder(w).Encode(store.All())
+            var entries []logstore.Entry
+            if sqlStore != nil {
+                entries, _ = sqlStore.All()
+            } else {
+                entries = memStore.All()
+            }
+            json.NewEncoder(w).Encode(entries)
         })
         mux.HandleFunc("/api/tunnels", func(w http.ResponseWriter, r *http.Request) {
             if mgr != nil && mgr.Role(r.URL.Query().Get("token")) != "admin" {
@@ -108,7 +124,7 @@ func main() {
             up := websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}
             ws, err := up.Upgrade(w, r, nil)
             if err != nil { return }
-            ch, cancel := store.Subscribe()
+            ch, cancel := memStore.Subscribe()
             defer cancel()
             for entry := range ch {
                 ws.WriteJSON(entry)
@@ -205,15 +221,17 @@ func main() {
             }
             w.WriteHeader(resp.Status)
             w.Write(resp.Body)
-            if store != nil {
-                store.Add(logstore.Entry{ID: id, Subdomain: sub, Method: r.Method, Path: r.URL.RequestURI(), Status: resp.Status, Timestamp: time.Now(), Headers: func() map[string]string {
+            entry := logstore.Entry{ID: id, Subdomain: sub, Method: r.Method, Path: r.URL.RequestURI(), Status: resp.Status, Timestamp: time.Now(), Headers: func() map[string]string {
                     h := make(map[string]string)
                     for k, v := range r.Header {
                         h[k] = strings.Join(v, ";")
                     }
                     return h
                 }(),
-                Body: string(reqMsg.Body)})
+                Body: string(reqMsg.Body)}
+            memStore.Add(entry)
+            if sqlStore != nil {
+                sqlStore.Add(entry)
             }
         case <-time.After(30 * time.Second):
             http.Error(w, "tunnel timeout", 504)
