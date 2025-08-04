@@ -74,20 +74,26 @@ The stack persists logs to `./data/portkey.db` (SQLite).
 
 ---
 
-## 🔌 Flags Overview
+## 🔌 Server Flags
 
-| Flag              | Default | Description                                          |
-| ----------------- | ------- | ---------------------------------------------------- |
-| `--auth-file`     |         | Path to `auth.yaml`; if omitted, server runs open.   |
-| `--use-caddy`     | false   | Enable embedded Caddy HTTPS reverse-proxy.           |
-| `--caddy-domain`  |         | Domain for certificates (required w/ `--use-caddy`). |
-| `--enable-web-ui` | false   | Serve `/ui` and admin APIs.                          |
-| `--log-store`     | memory  | `memory` or `sqlite` log backend.                    |
-| `--log-db`        | logs.db | SQLite filename when `--log-store=sqlite`.           |
-| `--log-retention` | 0       | Purge logs older than N days (SQLite only).          |
+| Flag              | Default | Description                                            |
+| ----------------- | ------- | ------------------------------------------------------ |
+| `--auth-file`     |         | Path to `auth.yaml`; if omitted, server runs open.     |
+| `--use-caddy`     | false   | Enable embedded Caddy HTTPS reverse-proxy.             |
+| `--caddy-domain`  |         | Domain for certificates (required with `--use-caddy`). |
+| `--enable-web-ui` | false   | Serve `/ui` and admin APIs.                            |
+| `--log-store`     | memory  | `memory` or `sqlite` log backend.                      |
+| `--log-db`        | logs.db | SQLite filename when `--log-store=sqlite`.             |
+| `--log-retention` | 0       | Purge logs older than N days (SQLite only).            |
 
-CLI additional flags:
-`--host`, `--port`, `--auth-token`, `replay` sub-command (up-coming).
+## 🖥️ CLI Flags
+
+| Flag                 | Default   | Description                                |
+| -------------------- | --------- | ------------------------------------------ |
+| `--host`             | localhost | Local hostname of service to expose.       |
+| `--port`             | 3000      | Local port to expose.                      |
+| `--auth-token`       |           | Token to authenticate with server.         |
+| `replay` sub-command |           | (up-coming) Replay a stored request by ID. |
 
 ---
 
