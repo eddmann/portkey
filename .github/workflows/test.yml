@@ -19,16 +19,6 @@ jobs:
         with:
           go-version: 1.22
 
-      - name: Cache Go modules
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/go/pkg/mod
-            ~/.cache/go-build
-          key: ${{ runner.OS }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.OS }}-go-
-
       - name: Run tests
         run: make test
 
