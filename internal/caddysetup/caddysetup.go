@@ -6,7 +6,7 @@ import (
 	"log"
 
 	caddy "github.com/caddyserver/caddy/v2"
-	"github.com/caddyserver/caddy/v2/caddyconfig"
+	
 )
 
 // Start launches an embedded Caddy instance that proxies from listenAddr
@@ -48,20 +48,19 @@ func Start(ctx context.Context, listenAddr, upstream, domain, email string) erro
 
     raw, _ := json.Marshal(cfg)
 
-    caddyCfg, err := caddyconfig.LoadJSON(raw, "json")
-    if err != nil {
-        return err
-    }
-
-    instance, err := caddy.Start(caddyCfg)
-    if err != nil {
+    var conf caddy.Config
+    if err := json.Unmarshal(raw, &conf); err != nil {
         return err
     }
 
     go func() {
         <-ctx.Done()
-        instance.Stop()
+        caddy.Stop()
     }()
+
+    if err := caddy.Run(&conf); err != nil {
+        return err
+    }
 
     log.Printf("Caddy started on %s, proxy -> %s", listenAddr, upstream)
     return nil
