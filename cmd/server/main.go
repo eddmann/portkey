@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+    "encoding/json"
 	"sync"
 	"time"
 
@@ -63,6 +64,40 @@ func main() {
         fs := http.FileServer(http.Dir("webui"))
         mux.Handle("/ui/", http.StripPrefix("/ui/", fs))
     }
+    // REST admin APIs
+    if *enableWebUI {
+        mux.HandleFunc("/api/requests", func(w http.ResponseWriter, r *http.Request) {
+            if mgr != nil && mgr.Role(r.URL.Query().Get("token")) != "admin" {
+                http.Error(w, "forbidden", http.StatusForbidden)
+                return
+            }
+            if store == nil {
+                http.Error(w, "logstore disabled", http.StatusServiceUnavailable)
+                return
+            }
+            id := strings.TrimPrefix(r.URL.Path, "/api/requests/")
+            w.Header().Set("Content-Type", "application/json")
+            if id != "" && id != "/api/requests" {
+                if e, ok := store.Get(id); ok {
+                    json.NewEncoder(w).Encode(e)
+                    return
+                }
+                http.NotFound(w, r)
+                return
+            }
+            json.NewEncoder(w).Encode(store.All())
+        })
+        mux.HandleFunc("/api/tunnels", func(w http.ResponseWriter, r *http.Request) {
+            if mgr != nil && mgr.Role(r.URL.Query().Get("token")) != "admin" {
+                http.Error(w, "forbidden", http.StatusForbidden)
+                return
+            }
+            w.Header().Set("Content-Type", "application/json")
+            subs := reg.Subdomains()
+            json.NewEncoder(w).Encode(subs)
+        })
+    }
+
     // Web UI websocket endpoint
     if *enableWebUI {
         mux.HandleFunc("/api/ws", func(w http.ResponseWriter, r *http.Request) {

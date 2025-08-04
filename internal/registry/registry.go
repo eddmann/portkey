@@ -5,6 +5,7 @@ import "sync"
 type ClientConn interface{}
 
 type Registry struct {
+    
     mu sync.RWMutex
     m  map[string]ClientConn
 }
@@ -32,4 +33,15 @@ func (r *Registry) Remove(sub string) {
     r.mu.Lock()
     defer r.mu.Unlock()
     delete(r.m, sub)
+}
+
+// Subdomains returns currently registered sub-domain names.
+func (r *Registry) Subdomains() []string {
+    r.mu.RLock()
+    defer r.mu.RUnlock()
+    keys := make([]string, 0, len(r.m))
+    for k := range r.m {
+        keys = append(keys, k)
+    }
+    return keys
 }
