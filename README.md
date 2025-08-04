@@ -32,7 +32,7 @@ It is **self-hostable**, written in Go, ships with an embedded Caddy HTTPS proxy
 | Auth        | Static token auth with wildcard sub-domain rules (`auth.yaml`)                                 |
 | HTTPS       | Embedded Caddy v2 – automatic Let’s Encrypt (`--use-caddy`)                                    |
 | Logging     | In-memory log buffer + optional SQLite persistence (`--log-store=sqlite`, `--log-retention=N`) |
-| Web UI      | Vanilla-JS SPA at `/ui` – live stream, search, pagination, dark-mode, replay placeholder       |
+| Web UI      | Vanilla-JS SPA at `/ui` – live stream, search, pagination, dark-mode                           |
 | Admin APIs  | `/api/requests`, `/api/tunnels`, `/api/ws` (admin-token gated)                                 |
 | Docker      | Scratch images (`portkey/server`, `portkey/cli`) + `docker-compose.yml` stack                  |
 
@@ -88,12 +88,11 @@ The stack persists logs to `./data/portkey.db` (SQLite).
 
 ## 🖥️ CLI Flags
 
-| Flag                 | Default   | Description                                |
-| -------------------- | --------- | ------------------------------------------ |
-| `--host`             | localhost | Local hostname of service to expose.       |
-| `--port`             | 3000      | Local port to expose.                      |
-| `--auth-token`       |           | Token to authenticate with server.         |
-| `replay` sub-command |           | (up-coming) Replay a stored request by ID. |
+| Flag           | Default   | Description                          |
+| -------------- | --------- | ------------------------------------ |
+| `--host`       | localhost | Local hostname of service to expose. |
+| `--port`       | 3000      | Local port to expose.                |
+| `--auth-token` |           | Token to authenticate with server.   |
 
 ---
 
@@ -101,13 +100,11 @@ The stack persists logs to `./data/portkey.db` (SQLite).
 
 ### Admin APIs (token=admin)
 
-| Endpoint                          | Description                            |
-| --------------------------------- | -------------------------------------- |
-| `GET /api/requests`               | JSON array of recent or persisted logs |
-| `GET /api/requests/:id`           | Single log entry                       |
-| `GET /api/tunnels`                | Active sub-domains                     |
-| `GET /api/requests?download=json` | **(todo)** stream ND-JSON export       |
-| `POST /api/replay/:id`            | **(todo)** replay stored request       |
+| Endpoint                | Description                            |
+| ----------------------- | -------------------------------------- |
+| `GET /api/requests`     | JSON array of recent or persisted logs |
+| `GET /api/requests/:id` | Single log entry                       |
+| `GET /api/tunnels`      | Active sub-domains                     |
 
 ### Running tests
 
@@ -117,25 +114,5 @@ go test ./...           # all
 ```
 
 ---
-
-## 🛣️ Roadmap (from SPEC.md)
-
-### Near-Term
-
-1. **Replay Capability**
-   • `/api/replay/{id}` endpoint & `portkey-cli replay`
-   • UI “Replay” button.
-2. **Request Export**
-   • `/api/requests?download=json` (ND-JSON / gz).
-3. **SQLite improvements**
-   • Background vacuum / DB stats endpoint.
-
-### Future Iterations
-
-4. **TLS & Proxy Enhancements** – QUIC, mTLS.
-5. **Web UI Dashboard** – tunnel graphs, request charts.
-6. **OAuth / SSO (Enterprise)** – GitHub & Google login.
-7. **Cloud Deployment** – Terraform module, AWS Fargate templates.
-8. **Analytics & Usage Quotas** – optional metering plugin.
 
 Contributions & feedback are welcome – open an issue or pull request!
