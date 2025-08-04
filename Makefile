@@ -6,6 +6,9 @@ BIN_DIR := bin
 SERVER_BIN := $(BIN_DIR)/portkey-server
 CLIENT_BIN := $(BIN_DIR)/portkey-client
 
+# Optimised build flags
+GOFLAGS := -trimpath -buildvcs=false -ldflags="-s -w"
+
 .PHONY: all build build-server build-client docker-build docker-push run-server run-server-ui run-client compose-up dummy-server test clean
 
 all: build
@@ -17,12 +20,12 @@ build: build-server build-client
 build-server:
 	@echo "Building server…"
 	@mkdir -p $(BIN_DIR)
-	go build -o $(SERVER_BIN) ./cmd/server
+	CGO_ENABLED=0 go build $(GOFLAGS) -tags "netgo osusergo" -o $(SERVER_BIN) ./cmd/server
 
 build-client:
 	@echo "Building client…"
 	@mkdir -p $(BIN_DIR)
-	go build -o $(CLIENT_BIN) ./cmd/client
+	CGO_ENABLED=0 go build $(GOFLAGS) -tags "netgo osusergo" -o $(CLIENT_BIN) ./cmd/client
 
 # ---------- Run ----------
 

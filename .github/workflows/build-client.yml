@@ -71,7 +71,7 @@ jobs:
           GOARCH: ${{ matrix.goarch }}
         run: |
           mkdir -p dist
-          go build -o dist/portkey-client-${{ inputs.release-tag }}-${{ matrix.goos }}-${{ matrix.goarch }} ./cmd/client
+          CGO_ENABLED=0 go build -trimpath -buildvcs=false -ldflags="-s -w" -tags "netgo osusergo" -o dist/portkey-client-${{ inputs.release-tag }}-${{ matrix.goos }}-${{ matrix.goarch }} ./cmd/client
 
       - name: Upload binary to release
         env:
