@@ -10,7 +10,8 @@ services:
     ports:
       - '8080:8080'
     volumes:
-      - ./auth.yaml:/auth.yaml:ro
+        - ./auth.yaml:/auth.yaml:ro
+        - ./data:/data
     entrypoint: []
     command:
       [
