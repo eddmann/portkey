@@ -1,5 +1,6 @@
 // token prompt retained
-const token = localStorage.getItem('portkeyToken') || prompt('Auth token (admin):');
+const token =
+  localStorage.getItem('portkeyToken') || prompt('Auth token (admin):');
 localStorage.setItem('portkeyToken', token);
 
 const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -13,35 +14,50 @@ filterInput.addEventListener('input', () => {
   filterText = filterInput.value.toLowerCase();
   [...tbody.rows].forEach(row => {
     if (row.classList.contains('details')) return;
-    row.style.display = row.dataset.path.toLowerCase().includes(filterText) ? '' : 'none';
+    row.style.display = row.dataset.path.toLowerCase().includes(filterText)
+      ? ''
+      : 'none';
   });
 });
 
 function addRow(e) {
+  const arrow = document.createElement('span');
+  arrow.textContent = '▶';
+  arrow.style.cursor = 'pointer';
   const tr = document.createElement('tr');
   tr.dataset.path = e.path;
-  tr.innerHTML = `<td>${new Date(e.timestamp).toLocaleTimeString()}</td>` +
-                 `<td>${e.subdomain}</td>` +
-                 `<td>${e.method}</td>` +
-                 `<td>${e.path}</td>` +
-                 `<td>${e.status}</td>`;
+  tr.innerHTML =
+    `<td class="arrow">▶</td>` +
+    `<td>${new Date(e.timestamp).toLocaleTimeString()}</td>` +
+    `<td>${e.subdomain}</td>` +
+    `<td>${e.method}</td>` +
+    `<td>${e.path}</td>` +
+    `<td>${e.status}</td>`;
   tr.addEventListener('click', () => toggleDetails(tr, e));
   tbody.prepend(tr);
-  if (filterText && !e.path.toLowerCase().includes(filterText)) tr.style.display = 'none';
-  if (tbody.querySelectorAll('tr:not(.details)').length > 1000) tbody.deleteRow(-1);
+  if (filterText && !e.path.toLowerCase().includes(filterText))
+    tr.style.display = 'none';
+  if (tbody.querySelectorAll('tr:not(.details)').length > 1000)
+    tbody.deleteRow(-1);
 }
 
 function toggleDetails(row, entry) {
   if (row.nextSibling && row.nextSibling.classList.contains('details')) {
     row.nextSibling.remove();
+    row.querySelector('.arrow').textContent = '▶';
     return;
   }
   const detail = document.createElement('tr');
   detail.className = 'details';
   const cell = document.createElement('td');
-  cell.colSpan = 5;
+  cell.colSpan = 6;
+  row.querySelector('.arrow').textContent = '▼';
   const pre = document.createElement('pre');
-  pre.textContent = JSON.stringify({headers: entry.headers, body: entry.body}, null, 2);
+  pre.textContent = JSON.stringify(
+    { headers: entry.headers, body: entry.body },
+    null,
+    2
+  );
   cell.appendChild(pre);
   detail.appendChild(cell);
   row.after(detail);

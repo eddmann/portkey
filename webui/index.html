@@ -25,6 +25,7 @@
       th {
         background: #f0f0f0;
       }
+      tr:not(.details) { cursor: pointer; }
     </style>
   </head>
   <body>
@@ -33,7 +34,7 @@
     <table id="log-table">
       <thead>
         <tr>
-          <th>Time</th>
+          <th></th><th>Time</th>
           <th>Subdomain</th>
           <th>Method</th>
           <th>Path</th>
