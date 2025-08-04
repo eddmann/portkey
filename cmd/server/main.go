@@ -36,6 +36,7 @@ var (
     caddyEmail = flag.String("caddy-email", "", "Email for Let's Encrypt account")
     enableWebUI = flag.Bool("enable-web-ui", false, "Enable Web UI and live request logging")
     logStoreType = flag.String("log-store", "memory", "Log store backend (memory|sqlite)")
+    logDBPath   = flag.String("log-db", "logs.db", "SQLite database file when --log-store=sqlite")
 )
 
 func main() {
@@ -57,7 +58,7 @@ func main() {
     memStore := logstore.New(1000)
     var sqlStore *logstore.SQLite
     if *logStoreType == "sqlite" {
-        s, err := logstore.NewSQLite("logs.db")
+        s, err := logstore.NewSQLite(*logDBPath)
         if err != nil { log.Fatalf("sqlite: %v", err) }
         sqlStore = s
         log.Printf("SQLite logstore enabled (logs.db)")
