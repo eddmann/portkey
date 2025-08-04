@@ -1,5 +1,7 @@
 # Portkey Makefile
 
+SHELL := /bin/bash
+
 BIN_DIR := bin
 SERVER_BIN := $(BIN_DIR)/portkey-server
 CLIENT_BIN := $(BIN_DIR)/portkey-cli
@@ -34,8 +36,8 @@ run-client: build-client
 
 # Dummy local HTTP server that replies with "pong"
 dummy-server:
-	@echo "Starting dummy HTTP server on :3000 (responds with 'pong')"
-	@node -e "require('http').createServer((req,res)=>{res.writeHead(200,{ 'Content-Type':'text/plain'}); res.end('pong');}).listen(3000,()=>console.log('Dummy server listening on http://localhost:3000'));"
+	@echo "Starting enhanced dummy HTTP server on :3000 (echoes request headers)"
+	@node -e "require('http').createServer((req,res)=>{console.log('--- Incoming request:', req.method, req.url); console.log(req.headers); const responseHeaders={ 'Content-Type':'application/json', 'X-Dummy':'1' }; res.writeHead(200,responseHeaders); res.end(JSON.stringify({ message:'pong', receivedHeaders:req.headers },null,2));}).listen(3000,()=>console.log('Dummy server listening on http://localhost:3000'));"
 
 # ---------- Tests ----------
 
