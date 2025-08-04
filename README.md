@@ -5,11 +5,12 @@ _Not all tunnels are in Gringotts._
 Portkey lets developers expose a local port to the internet through an encrypted tunnel – ideal for web-hooks, previews, and live demos.
 
 ## ❓ Why Portkey?
+
 Many teams rely on SaaS tunnelling services (Ngrok, LocalTunnel, Cloud-flared etc.) during local development. In our case we needed:
 
-* Web-hook testing and preview links during CI **inside a private AWS VPC** – commercial services were blocked.
-* Complete control of TLS certificates and traffic logs (security & compliance).
-* A tiny, self-contained CLI that could run **as a Docker image or standalone binary**, easy to vendor into any pipeline.
+- Secure web-hook testing and preview links during development & QA **inside a private AWS VPC**.
+- Complete control of TLS certificates and traffic logs (security & compliance).
+- A tiny, self-contained CLI that could run **as a Docker image or standalone binary**, easy to vendor into any pipeline.
 
 Portkey was created as a lightweight, self-hostable alternative that works the same on a laptop, inside Docker-Compose, or on any cloud provider.  
 It is **self-hostable**, written in Go, ships with an embedded Caddy HTTPS proxy, and features a real-time Web UI.
