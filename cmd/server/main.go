@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"io"
 	"log"
@@ -13,6 +14,7 @@ import (
 	"github.com/gorilla/websocket"
 
 	"portkey/internal/auth"
+	"portkey/internal/caddysetup"
 	"portkey/internal/registry"
 	"portkey/internal/tunnel"
 )
@@ -27,6 +29,9 @@ type Client struct {
 var (
     addr = flag.String("addr", ":8080", "HTTP listen address")
     authFile = flag.String("auth-file", "", "Path to auth token YAML file (optional)")
+    useCaddy = flag.Bool("use-caddy", false, "Enable embedded Caddy for TLS")
+    caddyDomain = flag.String("caddy-domain", "", "Domain to get TLS cert for")
+    caddyEmail = flag.String("caddy-email", "", "Email for Let's Encrypt account")
 )
 
 func main() {
@@ -142,8 +147,22 @@ func main() {
         }
     })
 
-    log.Printf("portkey-server listening on %s", *addr)
-    if err := http.ListenAndServe(*addr, mux); err != nil {
+    listenAddr := *addr
+    if *useCaddy {
+        // Shift internal mux to 127.0.0.1:8081 and let Caddy listen on *addr
+        listenAddr = ":8081"
+        ctx := context.Background()
+        domain := *caddyDomain
+        if domain == "" {
+            log.Fatal("--caddy-domain required when --use-caddy is set")
+        }
+        if err := caddysetup.Start(ctx, *addr, "127.0.0.1"+listenAddr, domain, *caddyEmail); err != nil {
+            log.Fatalf("caddy start: %v", err)
+        }
+    }
+
+    log.Printf("portkey-server listening on %s", listenAddr)
+    if err := http.ListenAndServe(listenAddr, mux); err != nil {
         log.Fatal(err)
     }
 }

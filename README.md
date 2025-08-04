@@ -52,6 +52,19 @@ curl -H "Host: myapp.localhost" http://localhost:8080/
 
 You should see your local application’s response.
 
+#### 🔒 Enabling TLS with Embedded Caddy
+
+Portkey can terminate HTTPS automatically via Let's Encrypt.
+
+```bash
+# Start server on :443 with Caddy
+./bin/portkey-server --use-caddy --caddy-domain yourdomain.com \
+                    --caddy-email you@example.com --addr :443 \
+                    --auth-file auth.yaml
+```
+
+All HTTP traffic for `yourdomain.com` (and sub-domains) will be served over HTTPS and proxied to Portkey’s internal handlers.
+
 #### Without Authentication
 
 If you prefer open access (for local testing), simply skip the `--auth-file` flag on the server and `--auth-token` flag on the client. The server accepts any subdomain without validation:
