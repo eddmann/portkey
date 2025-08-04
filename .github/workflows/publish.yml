@@ -10,7 +10,7 @@ concurrency: publish
 jobs:
   docker:
     name: Publish Docker images
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -40,7 +40,7 @@ jobs:
 
   binaries:
     name: Upload binaries as release assets (redundancy check)
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: false # binaries already uploaded in build workflows; keep job as template for future expansions
     steps:
       - run: echo "Binaries already attached during build stage."

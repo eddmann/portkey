@@ -10,7 +10,7 @@ on:
 jobs:
   docker:
     name: Docker image
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
     steps:
@@ -44,11 +44,11 @@ jobs:
           - darwin-amd64
         include:
           - build: linux-amd64
-            os: ubuntu-22.04
+            os: ubuntu-24.04
             goos: linux
             goarch: amd64
           - build: darwin-amd64
-            os: macos-12
+            os: macos-15
             goos: darwin
             goarch: amd64
     steps:
