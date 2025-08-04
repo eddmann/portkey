@@ -37,6 +37,7 @@ var (
     enableWebUI = flag.Bool("enable-web-ui", false, "Enable Web UI and live request logging")
     logStoreType = flag.String("log-store", "memory", "Log store backend (memory|sqlite)")
     logDBPath   = flag.String("log-db", "logs.db", "SQLite database file when --log-store=sqlite")
+    logRetention = flag.Int("log-retention", 0, "Retention days for SQLite logs (0=keep forever)")
 )
 
 func main() {
@@ -61,7 +62,18 @@ func main() {
         s, err := logstore.NewSQLite(*logDBPath)
         if err != nil { log.Fatalf("sqlite: %v", err) }
         sqlStore = s
-        log.Printf("SQLite logstore enabled (logs.db)")
+        log.Printf("SQLite logstore enabled (%s)", *logDBPath)
+        if *logRetention > 0 {
+            go func() {
+                ticker := time.NewTicker(12 * time.Hour)
+                for {
+                    cutoff := time.Now().AddDate(0,0,-*logRetention)
+                    sqlStore.PurgeOlderThan(cutoff)
+                    <-ticker.C
+                }
+            }()
+            log.Printf("log retention: %d days", *logRetention)
+        }
     }
     storeEnabled := *enableWebUI || sqlStore != nil
 

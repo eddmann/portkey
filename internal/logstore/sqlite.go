@@ -12,6 +12,12 @@ type SQLite struct {
     db *sql.DB
 }
 
+// PurgeOlderThan deletes entries older than cutoff
+func (s *SQLite) PurgeOlderThan(cut time.Time) error {
+    _, err := s.db.Exec(`DELETE FROM logs WHERE ts < ?`, cut.Unix())
+    return err
+}
+
 func NewSQLite(path string) (*SQLite, error) {
     db, err := sql.Open("sqlite", path)
     if err != nil { return nil, err }
