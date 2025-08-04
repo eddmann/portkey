@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 
+	"portkey/internal/auth"
 	"portkey/internal/registry"
 	"portkey/internal/tunnel"
 )
@@ -25,10 +26,23 @@ type Client struct {
 
 var (
     addr = flag.String("addr", ":8080", "HTTP listen address")
+    authFile = flag.String("auth-file", "", "Path to auth token YAML file (optional)")
 )
 
 func main() {
     flag.Parse()
+
+    var mgr *auth.Manager
+    if *authFile != "" {
+        var err error
+        mgr, err = auth.NewManagerFromFile(*authFile)
+        if err != nil {
+            log.Fatalf("auth load: %v", err)
+        }
+        log.Printf("auth enabled (%s)", *authFile)
+    } else {
+        log.Printf("auth disabled (no auth-file provided)")
+    }
 
     reg := registry.New()
 
@@ -37,8 +51,13 @@ func main() {
     // WebSocket endpoint for clients to register their tunnel
     mux.HandleFunc("/connect", func(w http.ResponseWriter, r *http.Request) {
         sub := r.URL.Query().Get("subdomain")
+        token := r.URL.Query().Get("token")
         if sub == "" {
             http.Error(w, "missing subdomain", http.StatusBadRequest)
+            return
+        }
+        if mgr != nil && !mgr.Validate(token, sub) {
+            http.Error(w, "unauthorized", http.StatusUnauthorized)
             return
         }
         up := websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}
