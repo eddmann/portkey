@@ -48,4 +48,4 @@ jobs:
         with:
           branch: draft-release
           force: true
-          github_token: ${{ secrets.RELEASE_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
