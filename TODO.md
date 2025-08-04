@@ -3,7 +3,7 @@
 ### Near-Term
 
 1. **Replay Capability**
-   • `/api/replay/{id}` endpoint & `portkey-cli replay`
+   • `/api/replay/{id}` endpoint & `portkey-client replay`
    • UI “Replay” button.
 2. **Request Export**
    • `/api/requests?download=json` (ND-JSON / gz).

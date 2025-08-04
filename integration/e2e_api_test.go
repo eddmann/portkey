@@ -18,10 +18,10 @@ import (
 func TestAPIWithLogs(t *testing.T) {
     tmp := t.TempDir()
     srvBin := filepath.Join(tmp, "srv")
-    cliBin := filepath.Join(tmp, "cli")
+    clientBin := filepath.Join(tmp, "cli")
 
     buildBinary(t, "../cmd/server", srvBin)
-    buildBinary(t, "../cmd/client", cliBin)
+    buildBinary(t, "../cmd/client", clientBin)
 
     dummy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("pong")) }))
     defer dummy.Close()
@@ -38,9 +38,9 @@ func TestAPIWithLogs(t *testing.T) {
     time.Sleep(400 * time.Millisecond)
 
     serverURL := fmt.Sprintf("http://127.0.0.1:%d", portFree)
-    cliCmd := exec.CommandContext(ctx, cliBin, "--server", serverURL, "--subdomain", "mylogs", "--port", port, "--auth-token", "admin456")
-    cliCmd.Stdout, cliCmd.Stderr = os.Stdout, os.Stderr
-    if err := cliCmd.Start(); err != nil { t.Fatalf("cli: %v", err) }
+    clientCmd := exec.CommandContext(ctx, clientBin, "--server", serverURL, "--subdomain", "mylogs", "--port", port, "--auth-token", "admin456")
+    clientCmd.Stdout, clientCmd.Stderr = os.Stdout, os.Stderr
+    if err := clientCmd.Start(); err != nil { t.Fatalf("cli: %v", err) }
     time.Sleep(600 * time.Millisecond)
 
     // issue request

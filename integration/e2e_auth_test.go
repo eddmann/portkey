@@ -38,11 +38,11 @@ func TestBlackboxTunnel(t *testing.T) {
     tempDir := t.TempDir()
 
     serverBin := filepath.Join(tempDir, "portkey-server")
-    cliBin := filepath.Join(tempDir, "portkey-cli")
+    clientBin := filepath.Join(tempDir, "portkey-client")
 
     // Build binaries
     buildBinary(t, "../cmd/server", serverBin)
-    buildBinary(t, "../cmd/client", cliBin)
+    buildBinary(t, "../cmd/client", clientBin)
 
     // Dummy local app returning "pong"
     localApp := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -74,10 +74,10 @@ func TestBlackboxTunnel(t *testing.T) {
 
     // Start CLI process
     serverURL := fmt.Sprintf("http://127.0.0.1:%d", serverPort)
-    cliCmd := exec.CommandContext(ctx, cliBin, "--server", serverURL, "--subdomain", "myapp", "--port", localPort, "--auth-token", "admin456")
-    cliCmd.Stdout = os.Stdout
-    cliCmd.Stderr = os.Stderr
-    if err := cliCmd.Start(); err != nil {
+    clientCmd := exec.CommandContext(ctx, clientBin, "--server", serverURL, "--subdomain", "myapp", "--port", localPort, "--auth-token", "admin456")
+    clientCmd.Stdout = os.Stdout
+    clientCmd.Stderr = os.Stderr
+    if err := clientCmd.Start(); err != nil {
         t.Fatalf("start cli: %v", err)
     }
 

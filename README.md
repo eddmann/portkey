@@ -16,7 +16,7 @@ Many teams rely on SaaS tunnelling services (Ngrok, LocalTunnel, Cloud-flared et
 
 - Secure web-hook testing and preview links during development & QA **inside a private AWS VPC**.
 - Complete control of TLS certificates and traffic logs (security & compliance).
-- A tiny, self-contained CLI that could run **as a Docker image or standalone binary**, easy to vendor into any pipeline.
+- A tiny, self-contained client that could run **as a Docker image or standalone binary**, easy to vendor into any pipeline.
 
 Portkey was created as a lightweight, self-hostable alternative that works the same on a laptop, inside Docker-Compose, or on any cloud provider.
 At the moment Portkey handles **HTTP/HTTPS tunnels**; future versions will add additional transports (gRPC, WebSockets over QUIC, TCP streams).
@@ -28,13 +28,13 @@ It is **self-hostable**, written in Go, ships with an embedded Caddy HTTPS proxy
 
 | Area        | Feature                                                                                        |
 | ----------- | ---------------------------------------------------------------------------------------------- |
-| Core Tunnel | bidirectional WebSocket tunnel (`portkey-cli ↔ portkey-server`)                                |
+| Core Tunnel | bidirectional WebSocket tunnel (`portkey-client ↔ portkey-server`)                                |
 | Auth        | Static token auth with wildcard sub-domain rules (`auth.yaml`)                                 |
 | HTTPS       | Embedded Caddy v2 – automatic Let’s Encrypt (`--use-caddy`)                                    |
 | Logging     | In-memory log buffer + optional SQLite persistence (`--log-store=sqlite`, `--log-retention=N`) |
 | Web UI      | Vanilla-JS SPA at `/ui` – live stream, search, pagination, dark-mode                           |
 | Admin APIs  | `/api/requests`, `/api/tunnels`, `/api/ws` (admin-token gated)                                 |
-| Docker      | Scratch images (`portkey/server`, `portkey/cli`) + `docker-compose.yml` stack                  |
+| Docker      | Scratch images (`portkey/server`, `portkey/client`) + `docker-compose.yml` stack                  |
 
 ---
 
@@ -53,7 +53,7 @@ autodummy(){ python3 -m http.server 3000; }; autodummy &
   --enable-web-ui
 
 # expose the dummy service
-./bin/portkey-cli --server http://localhost:8080 \
+./bin/portkey-client --server http://localhost:8080 \
   --subdomain myapp              \
   --host localhost --port 3000   \
   --auth-token admin456
@@ -66,7 +66,7 @@ Visit `http://localhost:8080/ui` and use token `admin456` to watch live requests
 ## 🐳 Docker / Compose
 
 ```bash
-# build & spin up the full stack (server+cli+dummy)
+# build & spin up the full stack (server+client+dummy)
 make compose-up
 ```
 
@@ -86,7 +86,7 @@ The stack persists logs to `./data/portkey.db` (SQLite).
 | `--log-db`        | logs.db | SQLite filename when `--log-store=sqlite`.             |
 | `--log-retention` | 0       | Purge logs older than N days (SQLite only).            |
 
-## 🖥️ CLI Flags
+## 🖥️ Client Flags
 
 | Flag           | Default   | Description                          |
 | -------------- | --------- | ------------------------------------ |

@@ -20,10 +20,10 @@ func TestBlackboxNoAuth(t *testing.T) {
     tempDir := t.TempDir()
 
     serverBin := filepath.Join(tempDir, "portkey-server")
-    cliBin := filepath.Join(tempDir, "portkey-cli")
+    clientBin := filepath.Join(tempDir, "portkey-client")
 
     buildBinary(t, "../cmd/server", serverBin)
-    buildBinary(t, "../cmd/client", cliBin)
+    buildBinary(t, "../cmd/client", clientBin)
 
     // local dummy app
     local := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("pong")) }))
@@ -42,9 +42,9 @@ func TestBlackboxNoAuth(t *testing.T) {
     time.Sleep(300 * time.Millisecond)
 
     serverURL := fmt.Sprintf("http://127.0.0.1:%d", srvPort)
-    cliCmd := exec.CommandContext(ctx, cliBin, "--server", serverURL, "--subdomain", "public", "--port", localPort)
-    cliCmd.Stdout, cliCmd.Stderr = os.Stdout, os.Stderr
-    if err := cliCmd.Start(); err != nil { t.Fatalf("cli: %v", err) }
+    clientCmd := exec.CommandContext(ctx, clientBin, "--server", serverURL, "--subdomain", "public", "--port", localPort)
+    clientCmd.Stdout, clientCmd.Stderr = os.Stdout, os.Stderr
+    if err := clientCmd.Start(); err != nil { t.Fatalf("cli: %v", err) }
     time.Sleep(500 * time.Millisecond)
 
     req, _ := http.NewRequest("GET", serverURL+"/", nil)

@@ -26,17 +26,17 @@ services:
         '--log-db',
         '/data/logs.db',
       ]
-  cli:
+  client:
     build:
       context: .
-      dockerfile: Dockerfile.cli
-    image: portkey/cli:local
+      dockerfile: Dockerfile.client
+    image: portkey/client:local
     depends_on:
       - server
     entrypoint: []
     command:
       [
-        '/portkey-cli',
+        '/portkey-client',
         '--server',
         'http://server:8080',
         '--subdomain',

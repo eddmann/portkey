@@ -27,12 +27,12 @@ Each iteration below is designed to be independently achievable by a team. Epics
 
 ✅ Iteration 1 – Core Tunneling MVP
 
-Goal: Build the basic tunnel architecture between portkey-cli and portkey-server using WebSocket and subdomains.
+Goal: Build the basic tunnel architecture between portkey-client and portkey-server using WebSocket and subdomains.
 
 Team Focus: Core Networking, Routing
 
 Features
-• portkey-cli:
+• portkey-client:
 • CLI to expose a local port
 • Flags: --port, --server, --subdomain
 • Persistent WebSocket connection
@@ -151,7 +151,7 @@ Goal: Simplify deployment with Docker and Fargate/EC2 readiness.
 Team Focus: DevOps, Infrastructure
 
 Features
-• Hardened Dockerfiles for portkey-server and portkey-cli
+• Hardened Dockerfiles for portkey-server and portkey-client
 • ECS Fargate task definition
 • EC2 systemd/Docker install docs
 • Docker Compose for local dev
@@ -220,7 +220,7 @@ Tech
 
 /cmd
 /server - portkey-server main
-/client - portkey-cli main
+/client - portkey-client main
 /internal
 /tunnel - registry, handlers
 /proxy - HTTP/WebSocket proxy logic
@@ -239,7 +239,7 @@ Tech
 
 CLI
 
-go build -o portkey-cli ./cmd/client
+go build -o portkey-client ./cmd/client
 
 Server
 

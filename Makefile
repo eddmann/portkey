@@ -4,7 +4,7 @@ SHELL := /bin/bash
 
 BIN_DIR := bin
 SERVER_BIN := $(BIN_DIR)/portkey-server
-CLIENT_BIN := $(BIN_DIR)/portkey-cli
+CLIENT_BIN := $(BIN_DIR)/portkey-client
 
 .PHONY: all build build-server build-client docker-build docker-push run-server run-server-ui run-client compose-up dummy-server test clean
 
@@ -36,17 +36,17 @@ run-server-ui: build-server
 
 docker-build:
 	@docker build -t portkey/server -f Dockerfile .
-	@docker build -t portkey/cli -f Dockerfile.cli .
+	@docker build -t portkey/client -f Dockerfile.client .
 
 docker-push:
 	@docker push portkey/server
-	@docker push portkey/cli
+	@docker push portkey/client
 
 compose-up:
 	@docker compose up --build
 
 run-client: build-client
-	@echo "Starting portkey-cli forwarding localhost:3000 as myapp"
+	@echo "Starting portkey-client forwarding localhost:3000 as myapp"
 	@$(CLIENT_BIN) --server http://localhost:8080 --subdomain myapp --host localhost --port 3000 --auth-token admin456
 
 # Dummy local HTTP server that replies with "pong"
