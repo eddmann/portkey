@@ -6,6 +6,8 @@
 
 _Not all tunnels are in Gringotts._
 
+> ⚠️ **Warning**: Portkey is early-stage experimental software. Review the code and run in a safe environment before using in production.
+
 Portkey lets developers expose a local port to the internet through an encrypted tunnel – ideal for web-hooks, previews, and live demos.
 
 ## ❓ Why Portkey?
