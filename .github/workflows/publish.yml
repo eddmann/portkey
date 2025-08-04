@@ -24,17 +24,17 @@ jobs:
       - name: Load & tag images
         run: |
           for TAR in *-${{ github.event.release.tag_name }}-docker.tar; do
-            IMG_NAME=$(echo "$TAR" | sed -E 's/-(cli|server)-.*/-\1/')
+            IMG_NAME=$(echo "$TAR" | sed -E 's/-(client|server)-.*/-\1/')
             docker load -i "$TAR"
           done
-          docker tag ghcr.io/eddmann/portkey-cli:latest ghcr.io/eddmann/portkey-cli:${{ github.event.release.tag_name }}
+          docker tag ghcr.io/eddmann/portkey-client:latest ghcr.io/eddmann/portkey-client:${{ github.event.release.tag_name }}
           docker tag ghcr.io/eddmann/portkey-server:latest ghcr.io/eddmann/portkey-server:${{ github.event.release.tag_name }}
 
       - name: Publish images
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          docker push ghcr.io/eddmann/portkey-cli:latest
-          docker push ghcr.io/eddmann/portkey-cli:${{ github.event.release.tag_name }}
+          docker push ghcr.io/eddmann/portkey-client:latest
+          docker push ghcr.io/eddmann/portkey-client:${{ github.event.release.tag_name }}
           docker push ghcr.io/eddmann/portkey-server:latest
           docker push ghcr.io/eddmann/portkey-server:${{ github.event.release.tag_name }}
 

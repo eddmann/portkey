@@ -1,4 +1,4 @@
-name: Build CLI
+name: Build Client
 
 on:
   workflow_call:
@@ -22,15 +22,15 @@ jobs:
           docker build \
             -f Dockerfile.cli \
             --label "org.opencontainers.image.source=https://github.com/eddmann/portkey" \
-            -t ghcr.io/eddmann/portkey-cli:latest .
+            -t ghcr.io/eddmann/portkey-client:latest .
 
       - name: Pack image
-        run: docker save -o portkey-cli-${{ inputs.release-tag }}-docker.tar ghcr.io/eddmann/portkey-cli:latest
+        run: docker save -o portkey-client-${{ inputs.release-tag }}-docker.tar ghcr.io/eddmann/portkey-client:latest
 
       - name: Upload image to release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ inputs.release-tag }} portkey-cli-${{ inputs.release-tag }}-docker.tar --clobber
+        run: gh release upload ${{ inputs.release-tag }} portkey-client-${{ inputs.release-tag }}-docker.tar --clobber
 
   binary:
     name: Cross-compiled binaries
@@ -66,9 +66,9 @@ jobs:
           GOARCH: ${{ matrix.goarch }}
         run: |
           mkdir -p dist
-          go build -o dist/portkey-cli-${{ inputs.release-tag }}-${{ matrix.goos }}-${{ matrix.goarch }} ./cmd/client
+          go build -o dist/portkey-client-${{ inputs.release-tag }}-${{ matrix.goos }}-${{ matrix.goarch }} ./cmd/client
 
       - name: Upload binary to release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ inputs.release-tag }} dist/portkey-cli-${{ inputs.release-tag }}-${{ matrix.goos }}-${{ matrix.goarch }} --clobber
+        run: gh release upload ${{ inputs.release-tag }} dist/portkey-client-${{ inputs.release-tag }}-${{ matrix.goos }}-${{ matrix.goarch }} --clobber

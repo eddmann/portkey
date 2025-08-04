@@ -26,10 +26,10 @@ jobs:
         with:
           commitish: 'draft-release'
 
-  cli:
+  client:
     needs: update-draft-release
-    name: Build CLI
-    uses: ./.github/workflows/build-cli.yml
+    name: Build Client
+    uses: ./.github/workflows/build-client.yml
     with:
       release-tag: ${{ needs.update-draft-release.outputs.tag_name }}
 
