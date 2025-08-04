@@ -31,3 +31,21 @@ jobs:
 
       - name: Run tests
         run: make test
+
+  update-draft-release-branch:
+    needs:
+      - unit-and-integration-tests
+    if: github.ref == 'refs/heads/main'
+    name: Update draft release branch
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+      - name: Update
+        uses: alice-biometrics/github-push-action@v0.7.0
+        with:
+          branch: draft-release
+          force: true
+          github_token: ${{ secrets.RELEASE_TOKEN }}
