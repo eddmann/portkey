@@ -17,6 +17,7 @@ import (
 	"portkey/internal/caddysetup"
 	"portkey/internal/registry"
 	"portkey/internal/tunnel"
+    "portkey/internal/logstore"
 )
 
 // Client wraps a websocket connection and outstanding request map
@@ -32,6 +33,7 @@ var (
     useCaddy = flag.Bool("use-caddy", false, "Enable embedded Caddy for TLS")
     caddyDomain = flag.String("caddy-domain", "", "Domain to get TLS cert for")
     caddyEmail = flag.String("caddy-email", "", "Email for Let's Encrypt account")
+    enableWebUI = flag.Bool("enable-web-ui", false, "Enable Web UI and live request logging")
 )
 
 func main() {
@@ -50,8 +52,29 @@ func main() {
     }
 
     reg := registry.New()
+    var store *logstore.Store
+    if *enableWebUI {
+        store = logstore.New(1000)
+    }
 
     mux := http.NewServeMux()
+    // Web UI websocket endpoint
+    if *enableWebUI {
+        mux.HandleFunc("/api/ws", func(w http.ResponseWriter, r *http.Request) {
+            if mgr != nil && mgr.Role(r.URL.Query().Get("token")) != "admin" {
+                http.Error(w, "forbidden", http.StatusForbidden)
+                return
+            }
+            up := websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}
+            ws, err := up.Upgrade(w, r, nil)
+            if err != nil { return }
+            ch, cancel := store.Subscribe()
+            defer cancel()
+            for entry := range ch {
+                ws.WriteJSON(entry)
+            }
+        })
+    }
 
     // WebSocket endpoint for clients to register their tunnel
     mux.HandleFunc("/connect", func(w http.ResponseWriter, r *http.Request) {
@@ -142,6 +165,9 @@ func main() {
             }
             w.WriteHeader(resp.Status)
             w.Write(resp.Body)
+            if store != nil {
+                store.Add(logstore.Entry{ID: id, Subdomain: sub, Method: r.Method, Path: r.URL.RequestURI(), Status: resp.Status, Timestamp: time.Now()})
+            }
         case <-time.After(30 * time.Second):
             http.Error(w, "tunnel timeout", 504)
         }
