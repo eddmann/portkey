@@ -19,6 +19,7 @@ Many teams rely on SaaS tunnelling services (Ngrok, LocalTunnel, Cloud-flared et
 - A tiny, self-contained CLI that could run **as a Docker image or standalone binary**, easy to vendor into any pipeline.
 
 Portkey was created as a lightweight, self-hostable alternative that works the same on a laptop, inside Docker-Compose, or on any cloud provider.
+At the moment Portkey handles **HTTP/HTTPS tunnels**; future versions will add additional transports (gRPC, WebSockets over QUIC, TCP streams).
 It is **self-hostable**, written in Go, ships with an embedded Caddy HTTPS proxy, and features a real-time Web UI.
 
 ---
@@ -34,7 +35,6 @@ It is **self-hostable**, written in Go, ships with an embedded Caddy HTTPS proxy
 | Web UI      | Vanilla-JS SPA at `/ui` – live stream, search, pagination, dark-mode, replay placeholder       |
 | Admin APIs  | `/api/requests`, `/api/tunnels`, `/api/ws` (admin-token gated)                                 |
 | Docker      | Scratch images (`portkey/server`, `portkey/cli`) + `docker-compose.yml` stack                  |
-| Tests       | End-to-end (e2e) suites for auth & no-auth scenarios                                           |
 
 ---
 
