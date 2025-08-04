@@ -1,4 +1,8 @@
-# 🪄 Portkey – Secure Tunnel Service
+<p align="center">
+  <img src="logo.png" alt="Portkey Logo" width="300"/>
+</p>
+
+# Portkey
 
 _Not all tunnels are in Gringotts._
 
@@ -12,12 +16,12 @@ Many teams rely on SaaS tunnelling services (Ngrok, LocalTunnel, Cloud-flared et
 - Complete control of TLS certificates and traffic logs (security & compliance).
 - A tiny, self-contained CLI that could run **as a Docker image or standalone binary**, easy to vendor into any pipeline.
 
-Portkey was created as a lightweight, self-hostable alternative that works the same on a laptop, inside Docker-Compose, or on any cloud provider.  
+Portkey was created as a lightweight, self-hostable alternative that works the same on a laptop, inside Docker-Compose, or on any cloud provider.
 It is **self-hostable**, written in Go, ships with an embedded Caddy HTTPS proxy, and features a real-time Web UI.
 
 ---
 
-## ✨ What’s Inside (v0.2)
+## ✨ What’s Inside
 
 | Area        | Feature                                                                                        |
 | ----------- | ---------------------------------------------------------------------------------------------- |
@@ -110,12 +114,12 @@ go test ./...           # all
 
 ### Near-Term
 
-1. **Replay Capability**  
-   • `/api/replay/{id}` endpoint & `portkey-cli replay`  
+1. **Replay Capability**
+   • `/api/replay/{id}` endpoint & `portkey-cli replay`
    • UI “Replay” button.
-2. **Request Export**  
+2. **Request Export**
    • `/api/requests?download=json` (ND-JSON / gz).
-3. **SQLite improvements**  
+3. **SQLite improvements**
    • Background vacuum / DB stats endpoint.
 
 ### Future Iterations
