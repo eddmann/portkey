@@ -17,6 +17,7 @@ import (
 
 var (
     port     = flag.Int("port", 3000, "Local port to expose")
+    host     = flag.String("host", "localhost", "Local host running service")
     server   = flag.String("server", "http://localhost:8080", "Portkey server URL")
     subdomain = flag.String("subdomain", "myapp", "Requested subdomain")
     authToken = flag.String("auth-token", "", "Auth token for server")
@@ -63,7 +64,7 @@ func main() {
 
 func handleRequest(conn *websocket.Conn, req tunnel.Request) {
     // Forward to local server
-    target := fmt.Sprintf("http://localhost:%d%s", *port, req.Path)
+    target := fmt.Sprintf("http://%s:%d%s", *host, *port, req.Path)
     httpReq, err := http.NewRequest(req.Method, target, bytes.NewReader(req.Body))
     if err != nil {
         log.Printf("build req: %v", err)

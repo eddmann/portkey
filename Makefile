@@ -47,7 +47,7 @@ compose-up:
 
 run-client: build-client
 	@echo "Starting portkey-cli forwarding localhost:3000 as myapp"
-	@$(CLIENT_BIN) --server http://localhost:8080 --subdomain myapp --port 3000 --auth-token admin456
+	@$(CLIENT_BIN) --server http://localhost:8080 --subdomain myapp --host localhost --port 3000 --auth-token admin456
 
 # Dummy local HTTP server that replies with "pong"
 dummy-server:
