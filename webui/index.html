@@ -4,19 +4,59 @@
     <meta charset="utf-8" />
     <title>Portkey Live Logs</title>
     <style>
-      :root { --bg: #fff; --fg: #000; --table-h: #f0f0f0; }
-      .dark { --bg: #1e1e1e; --fg: #ddd; --table-h: #333; }
-      body { font-family: sans-serif; margin: 20px; background: var(--bg); color: var(--fg); }
-      #controls { margin-bottom: 10px; display: flex; gap: 10px; align-items: center; }
-      #filter { padding: 4px 8px; width: 300px; }
-      table { border-collapse: collapse; width: 100%; }
-      th, td { border: 1px solid #555; padding: 4px 8px; }
-      th { background: var(--table-h); }
-      tr:not(.details) { cursor: pointer; }
-      tr:not(.details):hover { background: rgba(127,127,127,0.1); }
-      #tunnel-list { font-size: 0.9em; }
-      pre { white-space: pre-wrap; }
-      button { padding: 4px 10px; }
+      :root {
+        --bg: #fff;
+        --fg: #000;
+        --table-h: #f0f0f0;
+      }
+      .dark {
+        --bg: #1e1e1e;
+        --fg: #ddd;
+        --table-h: #333;
+      }
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+        background: var(--bg);
+        color: var(--fg);
+      }
+      #controls {
+        margin-bottom: 10px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      #filter {
+        padding: 4px 8px;
+        width: 300px;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      th,
+      td {
+        border: 1px solid #555;
+        padding: 4px 8px;
+      }
+      th {
+        background: var(--table-h);
+      }
+      tr:not(.details) {
+        cursor: pointer;
+      }
+      tr:not(.details):hover {
+        background: rgba(127, 127, 127, 0.1);
+      }
+      #tunnel-list {
+        font-size: 0.9em;
+      }
+      pre {
+        white-space: pre-wrap;
+      }
+      button {
+        padding: 4px 10px;
+      }
     </style>
   </head>
   <body>
@@ -30,7 +70,12 @@
     <table id="log-table">
       <thead>
         <tr>
-          <th>Time</th><th>Subdomain</th><th>Method</th><th>Path</th><th>Status</th><th></th>
+          <th>Time</th>
+          <th>Subdomain</th>
+          <th>Method</th>
+          <th>Path</th>
+          <th>Status</th>
+          <th></th>
         </tr>
       </thead>
       <tbody></tbody>

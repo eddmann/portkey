@@ -20,6 +20,8 @@ services:
         '--auth-file',
         '/auth.yaml',
         '--enable-web-ui',
+        '--log-store',
+        'sqlite',
       ]
   cli:
     build:

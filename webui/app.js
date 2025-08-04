@@ -1,4 +1,5 @@
-const token = localStorage.getItem('portkeyToken') || prompt('Auth token (admin):');
+const token =
+  localStorage.getItem('portkeyToken') || prompt('Auth token (admin):');
 localStorage.setItem('portkeyToken', token);
 
 const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -36,7 +37,8 @@ function applyFilter() {
       shown++;
     } else {
       row.style.display = 'none';
-      if (row.nextSibling && row.nextSibling.classList.contains('details')) row.nextSibling.style.display = 'none';
+      if (row.nextSibling && row.nextSibling.classList.contains('details'))
+        row.nextSibling.style.display = 'none';
     }
   });
 }
@@ -45,7 +47,8 @@ function addRow(e) {
   const tr = document.createElement('tr');
   tr.className = 'main';
   tr.dataset.path = e.path;
-  tr.innerHTML = `<td>${new Date(e.timestamp).toLocaleTimeString()}</td>` +
+  tr.innerHTML =
+    `<td>${new Date(e.timestamp).toLocaleTimeString()}</td>` +
     `<td>${e.subdomain}</td>` +
     `<td>${e.method}</td>` +
     `<td>${e.path}</td>` +
@@ -71,9 +74,15 @@ function toggleDetails(row, entry) {
   cell.colSpan = 6;
   row.querySelector('.arrow').textContent = '▼';
   let bodyVal = entry.body;
-  try { bodyVal = JSON.parse(entry.body); } catch {}
+  try {
+    bodyVal = JSON.parse(entry.body);
+  } catch {}
   const pre = document.createElement('pre');
-  pre.textContent = JSON.stringify({ headers: entry.headers, body: bodyVal }, null, 2);
+  pre.textContent = JSON.stringify(
+    { headers: entry.headers, body: bodyVal },
+    null,
+    2
+  );
   cell.appendChild(pre);
   detail.appendChild(cell);
   row.after(detail);
