@@ -31,7 +31,7 @@ func TestAPIWithLogs(t *testing.T) {
     ctx, cancel := context.WithCancel(context.Background())
     defer cancel()
 
-    authPath := filepath.Join("..", "auth.yaml")
+    authPath := filepath.Join(".", "auth.yaml")
     srvCmd := exec.CommandContext(ctx, srvBin, "-addr", fmt.Sprintf(":%d", portFree), "-auth-file", authPath, "--enable-web-ui")
     srvCmd.Stdout, srvCmd.Stderr = os.Stdout, os.Stderr
     if err := srvCmd.Start(); err != nil { t.Fatalf("srv: %v", err) }
