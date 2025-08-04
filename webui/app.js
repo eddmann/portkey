@@ -27,12 +27,15 @@ function addRow(e) {
   const tr = document.createElement('tr');
   tr.dataset.path = e.path;
   tr.innerHTML =
-    `<td class="arrow">▶</td>` +
     `<td>${new Date(e.timestamp).toLocaleTimeString()}</td>` +
     `<td>${e.subdomain}</td>` +
     `<td>${e.method}</td>` +
     `<td>${e.path}</td>` +
     `<td>${e.status}</td>`;
+  const arrowTd = document.createElement('td');
+  arrowTd.className = 'arrow';
+  arrowTd.textContent = '▶';
+  tr.appendChild(arrowTd);
   tr.addEventListener('click', () => toggleDetails(tr, e));
   tbody.prepend(tr);
   if (filterText && !e.path.toLowerCase().includes(filterText))
