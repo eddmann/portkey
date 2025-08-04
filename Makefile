@@ -36,7 +36,7 @@ run-client: build-client
 .ONESHELL:
 dummy-server:
 	@echo "Starting dummy HTTP server on :3000 (responds with 'pong')"
-	python3 - <<'PY'
+	python3 - <<-'PY'
 	import http.server, socketserver, sys
 	PORT = 3000
 	class Handler(http.server.SimpleHTTPRequestHandler):
@@ -51,7 +51,7 @@ dummy-server:
 	        httpd.serve_forever()
 	    except KeyboardInterrupt:
 	        sys.exit(0)
-PY
+	PY
 
 # ---------- Tests ----------
 
