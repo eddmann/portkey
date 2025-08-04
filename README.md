@@ -11,6 +11,7 @@ This README documents the **Iteration 1** milestone – a minimal but functional
 - `portkey-cli` – establishes a persistent WebSocket tunnel and forwards requests to your local server.
 - Sub-domain registry (in-memory, concurrency-safe).
 - **Token-based authentication & authorization** with YAML config.
+- **Automatic HTTPS** via embedded Caddy reverse-proxy (Let's Encrypt).
 - Black-box integration tests: one with token auth, one with auth disabled.
 - Container images via multi-stage Dockerfiles.
 
@@ -64,6 +65,17 @@ Portkey can terminate HTTPS automatically via Let's Encrypt.
 ```
 
 All HTTP traffic for `yourdomain.com` (and sub-domains) will be served over HTTPS and proxied to Portkey’s internal handlers.
+
+Flags overview:
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--use-caddy` | false | Enable embedded Caddy reverse-proxy & HTTPS |
+| `--caddy-domain` | | Primary domain for certificates (required with `--use-caddy`) |
+| `--caddy-email` | | Email for Let's Encrypt account (recommended) |
+| `--addr` | `:443` (example) | External listen address for HTTPS |
+
+Internally Portkey shifts its own HTTP mux to `127.0.0.1:8081`, and Caddy proxies incoming HTTPS traffic to it.
 
 #### Without Authentication
 
