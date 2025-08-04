@@ -10,8 +10,8 @@ services:
     ports:
       - '8080:8080'
     volumes:
-        - ./auth.yaml:/auth.yaml:ro
-        - ./data:/data
+      - ./auth.yaml:/auth.yaml:ro
+      - ./data:/data
     entrypoint: []
     command:
       [
@@ -23,6 +23,8 @@ services:
         '--enable-web-ui',
         '--log-store',
         'sqlite',
+        '--log-db',
+        '/data/logs.db',
       ]
   cli:
     build:
