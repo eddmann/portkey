@@ -4,11 +4,27 @@
     <meta charset="utf-8" />
     <title>Portkey Live Logs</title>
     <style>
-      body { font-family: sans-serif; margin: 20px; }
-      #filter { margin-bottom: 10px; padding: 4px 8px; width: 300px; }
-      table { border-collapse: collapse; width: 100%; }
-      th, td { border: 1px solid #ccc; padding: 4px 8px; }
-      th { background: #f0f0f0; }
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+      }
+      #filter {
+        margin-bottom: 10px;
+        padding: 4px 8px;
+        width: 300px;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      th,
+      td {
+        border: 1px solid #ccc;
+        padding: 4px 8px;
+      }
+      th {
+        background: #f0f0f0;
+      }
     </style>
   </head>
   <body>
@@ -16,7 +32,13 @@
     <input id="filter" placeholder="Filter by path…" />
     <table id="log-table">
       <thead>
-        <tr><th>Time</th><th>Subdomain</th><th>Method</th><th>Path</th><th>Status</th></tr>
+        <tr>
+          <th>Time</th>
+          <th>Subdomain</th>
+          <th>Method</th>
+          <th>Path</th>
+          <th>Status</th>
+        </tr>
       </thead>
       <tbody></tbody>
     </table>

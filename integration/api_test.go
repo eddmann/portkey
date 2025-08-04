@@ -1,18 +1,18 @@
 package integration
 
 import (
-    "context"
-    "encoding/json"
-    "fmt"
-    "io"
-    "net/http"
-    "net/http/httptest"
-    "os"
-    "os/exec"
-    "path/filepath"
-    "strings"
-    "testing"
-    "time"
+	"context"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
+	"testing"
+	"time"
 )
 
 func TestAPIWithLogs(t *testing.T) {

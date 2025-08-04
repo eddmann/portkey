@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"io"
 	"log"
 	"net/http"
 	"strings"
-    "encoding/json"
 	"sync"
 	"time"
 
@@ -206,7 +206,14 @@ func main() {
             w.WriteHeader(resp.Status)
             w.Write(resp.Body)
             if store != nil {
-                store.Add(logstore.Entry{ID: id, Subdomain: sub, Method: r.Method, Path: r.URL.RequestURI(), Status: resp.Status, Timestamp: time.Now()})
+                store.Add(logstore.Entry{ID: id, Subdomain: sub, Method: r.Method, Path: r.URL.RequestURI(), Status: resp.Status, Timestamp: time.Now(), Headers: func() map[string]string {
+                    h := make(map[string]string)
+                    for k, v := range r.Header {
+                        h[k] = strings.Join(v, ";")
+                    }
+                    return h
+                }(),
+                Body: string(reqMsg.Body)})
             }
         case <-time.After(30 * time.Second):
             http.Error(w, "tunnel timeout", 504)

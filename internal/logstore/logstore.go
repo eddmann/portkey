@@ -11,7 +11,9 @@ type Entry struct {
     Method    string    `json:"method"`
     Path      string    `json:"path"`
     Status    int       `json:"status"`
-    Timestamp time.Time `json:"timestamp"`
+    Headers   map[string]string `json:"headers,omitempty"`
+    Body      string            `json:"body,omitempty"`
+    Timestamp time.Time         `json:"timestamp"`
 }
 
 // Store is a fixed-size circular buffer of entries safe for concurrent use.

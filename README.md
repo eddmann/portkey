@@ -68,12 +68,12 @@ All HTTP traffic for `yourdomain.com` (and sub-domains) will be served over HTTP
 
 Flags overview:
 
-| Flag | Default | Description |
-|------|---------|-------------|
-| `--use-caddy` | false | Enable embedded Caddy reverse-proxy & HTTPS |
-| `--caddy-domain` | | Primary domain for certificates (required with `--use-caddy`) |
-| `--caddy-email` | | Email for Let's Encrypt account (recommended) |
-| `--addr` | `:443` (example) | External listen address for HTTPS |
+| Flag             | Default          | Description                                                   |
+| ---------------- | ---------------- | ------------------------------------------------------------- |
+| `--use-caddy`    | false            | Enable embedded Caddy reverse-proxy & HTTPS                   |
+| `--caddy-domain` |                  | Primary domain for certificates (required with `--use-caddy`) |
+| `--caddy-email`  |                  | Email for Let's Encrypt account (recommended)                 |
+| `--addr`         | `:443` (example) | External listen address for HTTPS                             |
 
 Internally Portkey shifts its own HTTP mux to `127.0.0.1:8081`, and Caddy proxies incoming HTTPS traffic to it.
 
@@ -141,7 +141,19 @@ Then start the CLI container and point it at the server container’s address.
 
 ---
 
-## 🧪 Tests
+## 🧪 Tests & APIs
+
+### Admin REST APIs
+
+| Endpoint                | Description                  |
+| ----------------------- | ---------------------------- |
+| `GET /api/requests`     | JSON list of recent requests |
+| `GET /api/requests/:id` | Single request record        |
+| `GET /api/tunnels`      | Active sub-domains           |
+
+All endpoints require `token=ADMIN_TOKEN` query param.
+
+### Tests
 
 - Unit tests: `go test ./...`
 - Black-box integration tests (auth & no-auth): `go test ./integration -v`

@@ -6,7 +6,6 @@ import (
 	"log"
 
 	caddy "github.com/caddyserver/caddy/v2"
-	
 )
 
 // Start launches an embedded Caddy instance that proxies from listenAddr
