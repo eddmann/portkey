@@ -35,7 +35,7 @@ run-server-ui: build-server
 	@$(SERVER_BIN) -addr :8080 -auth-file auth.yaml --enable-web-ui
 
 docker-build:
-	@docker build -t portkey/server -f Dockerfile .
+	@docker build -t portkey/server -f Dockerfile.server .
 	@docker build -t portkey/client -f Dockerfile.client .
 
 docker-push:

@@ -20,7 +20,7 @@ jobs:
       - name: Build image
         run: |
           docker build \
-            -f Dockerfile \
+            -f Dockerfile.server \
             --label "org.opencontainers.image.source=https://github.com/eddmann/portkey" \
             -t ghcr.io/eddmann/portkey-server:latest .
 
