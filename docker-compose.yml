@@ -18,8 +18,8 @@ services:
     command:
       [
         '/portkey-server',
-        '-addr',
-        ':8080',
+        '--port',
+        '8080',
         '--auth-file',
         '/auth.yaml',
         '--enable-web-ui',

@@ -48,7 +48,7 @@ make build
 autodummy(){ python3 -m http.server 3000; }; autodummy &
 
 # run server (HTTP 8080, Web UI enabled)
-./bin/portkey-server -addr :8080 \
+./bin/portkey-server --port 8080 \
   --auth-file auth.yaml          \
   --enable-web-ui
 
@@ -76,15 +76,16 @@ The stack persists logs to `./data/portkey.db` (SQLite).
 
 ## Server Flags
 
-| Flag              | Default | Description                                            |
-| ----------------- | ------- | ------------------------------------------------------ |
-| `--auth-file`     |         | Path to `auth.yaml`; if omitted, server runs open.     |
-| `--use-caddy`     | false   | Enable embedded Caddy HTTPS reverse-proxy.             |
-| `--caddy-domain`  |         | Domain for certificates (required with `--use-caddy`). |
-| `--enable-web-ui` | false   | Serve `/ui` and admin APIs.                            |
-| `--log-store`     | memory  | `memory` or `sqlite` log backend.                      |
-| `--log-db`        | logs.db | SQLite filename when `--log-store=sqlite`.             |
-| `--log-retention` | 0       | Purge logs older than N days (SQLite only).            |
+| Flag              | Default   | Description                                                |
+| ----------------- | --------- | ---------------------------------------------------------- |
+| `--auth-file`     |           | Path to `auth.yaml`; if omitted, server runs open.         |
+| `--use-caddy`     | false     | Enable embedded Caddy HTTPS reverse-proxy.                 |
+| `--port`          | 8080      | HTTP port to listen on.                                    |
+| `--domain`        | localhost | Root domain for TLS and routing (used with `--use-caddy`). |
+| `--enable-web-ui` | false     | Serve `/ui` and admin APIs.                                |
+| `--log-store`     | memory    | `memory` or `sqlite` log backend.                          |
+| `--log-db`        | logs.db   | SQLite filename when `--log-store=sqlite`.                 |
+| `--log-retention` | 0         | Purge logs older than N days (SQLite only).                |
 
 ## Client Flags
 

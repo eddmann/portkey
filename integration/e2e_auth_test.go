@@ -62,7 +62,7 @@ func TestBlackboxTunnel(t *testing.T) {
 
     // Start server process
     authPath := filepath.Join(".", "auth.yaml")
-    serverCmd := exec.CommandContext(ctx, serverBin, "-addr", fmt.Sprintf(":%d", serverPort), "-auth-file", authPath)
+    serverCmd := exec.CommandContext(ctx, serverBin, "--port", fmt.Sprintf("%d", serverPort), "-auth-file", authPath)
     serverCmd.Stdout = os.Stdout
     serverCmd.Stderr = os.Stderr
     if err := serverCmd.Start(); err != nil {

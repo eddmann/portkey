@@ -36,7 +36,7 @@ func TestBlackboxNoAuth(t *testing.T) {
     defer cancel()
 
     // server without auth-file
-    srvCmd := exec.CommandContext(ctx, serverBin, "-addr", fmt.Sprintf(":%d", srvPort))
+    srvCmd := exec.CommandContext(ctx, serverBin, "--port", fmt.Sprintf("%d", srvPort))
     srvCmd.Stdout, srvCmd.Stderr = os.Stdout, os.Stderr
     if err := srvCmd.Start(); err != nil { t.Fatalf("srv: %v", err) }
     time.Sleep(300 * time.Millisecond)

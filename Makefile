@@ -31,11 +31,11 @@ build-client:
 
 run-server: build-server
 	@echo "Starting portkey-server on :8080"
-	@$(SERVER_BIN) -addr :8080 -auth-file integration/auth.yaml
+	@$(SERVER_BIN) --port 8080 -auth-file integration/auth.yaml
 
 run-server-ui: build-server
 	@echo "Starting portkey-server with Web UI on :8080"
-	@$(SERVER_BIN) -addr :8080 -auth-file integration/auth.yaml --enable-web-ui
+	@$(SERVER_BIN) --port 8080 -auth-file integration/auth.yaml --enable-web-ui
 
 docker-build:
 	@docker build -t portkey/server -f Dockerfile.server .

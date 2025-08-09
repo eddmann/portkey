@@ -6,7 +6,10 @@ import (
 	"flag"
 	"io"
 	"log"
+	"net"
 	"net/http"
+	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -28,10 +31,10 @@ type Client struct {
 }
 
 var (
-    addr = flag.String("addr", ":8080", "HTTP listen address")
+    port = flag.Int("port", 8080, "HTTP port to listen on")
     authFile = flag.String("auth-file", "", "Path to auth token YAML file (optional)")
     useCaddy = flag.Bool("use-caddy", false, "Enable embedded Caddy for TLS")
-    caddyDomain = flag.String("caddy-domain", "", "Domain to get TLS cert for")
+    domain = flag.String("domain", "localhost", "Base domain of the server")
     caddyEmail = flag.String("caddy-email", "", "Email for Let's Encrypt account")
     enableWebUI = flag.Bool("enable-web-ui", false, "Enable Web UI and live request logging")
     logStoreType = flag.String("log-store", "memory", "Log store backend (memory|sqlite)")
@@ -41,6 +44,10 @@ var (
 
 func main() {
     flag.Parse()
+
+    if *domain == "" {
+        log.Fatal("--domain must be set and non-empty")
+    }
 
     var mgr *auth.Manager
     if *authFile != "" {
@@ -78,21 +85,19 @@ func main() {
 
     mux := http.NewServeMux()
 
+    normalizeHost := func(host string) string {
+        if h, _, err := net.SplitHostPort(host); err == nil {
+            return h
+        }
+        return host
+    }
+
     isRootHost := func(host string) bool {
-        host = strings.Split(host, ":")[0]
-        if *useCaddy && *caddyDomain != "" {
-            return host == *caddyDomain
-        }
-        sub := strings.Split(host, ".")[0]
-        if _, ok := reg.Lookup(sub); ok && strings.HasPrefix(host, sub+".") {
-            return false
-        }
-        return true
+        return normalizeHost(host) == *domain
     }
 
     proxy := func(w http.ResponseWriter, r *http.Request) {
-        host := r.Host
-        sub := strings.Split(host, ".")[0]
+        sub := strings.TrimSuffix(normalizeHost(r.Host), "."+*domain)
         cVal, ok := reg.Lookup(sub)
         if !ok {
             http.NotFound(w, r)
@@ -151,7 +156,11 @@ func main() {
     }
 
     if *enableWebUI {
-        fs := http.FileServer(http.Dir("../webui"))
+        uiDir := "../webui"
+        if _, err := os.Stat(uiDir); os.IsNotExist(err) {
+            uiDir = "/webui"
+        }
+        fs := http.FileServer(http.Dir(uiDir))
         mux.Handle("/ui/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
             if !isRootHost(r.Host) { proxy(w, r); return }
             http.StripPrefix("/ui/", fs).ServeHTTP(w, r)
@@ -265,15 +274,11 @@ func main() {
 
     mux.HandleFunc("/", proxy)
 
-    listenAddr := *addr
+    listenAddr := ":" + strconv.Itoa(*port)
     if *useCaddy {
-        listenAddr = ":8081"
+        listenAddr = "127.0.0.1:8081"
         ctx := context.Background()
-        domain := *caddyDomain
-        if domain == "" {
-            log.Fatal("--caddy-domain required when --use-caddy is set")
-        }
-        if err := caddysetup.Start(ctx, *addr, "127.0.0.1"+listenAddr, domain, *caddyEmail); err != nil {
+        if err := caddysetup.Start(ctx, ":"+strconv.Itoa(*port), listenAddr, *domain, *caddyEmail); err != nil {
             log.Fatalf("caddy start: %v", err)
         }
     }
