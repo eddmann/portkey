@@ -21,12 +21,11 @@ import (
 	"portkey/internal/tunnel"
 )
 
-// Client wraps a websocket connection and outstanding request map
+
 type Client struct {
     conn    *websocket.Conn
     pending sync.Map // id -> chan tunnel.Response
 }
-
 
 var (
     addr = flag.String("addr", ":8080", "HTTP listen address")
@@ -79,7 +78,6 @@ func main() {
 
     mux := http.NewServeMux()
 
-    // Helper to determine if a request targets the root host vs a subdomain host
     isRootHost := func(host string) bool {
         host = strings.Split(host, ":")[0]
         if *useCaddy && *caddyDomain != "" {
@@ -92,7 +90,6 @@ func main() {
         return true
     }
 
-    // Proxy helper: forwards the incoming HTTP request to the registered client for the subdomain
     proxy := func(w http.ResponseWriter, r *http.Request) {
         host := r.Host
         sub := strings.Split(host, ".")[0]
@@ -120,13 +117,12 @@ func main() {
             reqMsg.Body = b
         }
 
-        // create response channel
         respCh := make(chan tunnel.Response, 1)
         client.pending.Store(id, respCh)
         defer client.pending.Delete(id)
 
         if err := client.conn.WriteJSON(reqMsg); err != nil {
-            http.Error(w, "tunnel write error", 502)
+            http.Error(w, "tunnel write error", http.StatusBadGateway)
             return
         }
 
@@ -150,18 +146,18 @@ func main() {
                 sqlStore.Add(entry)
             }
         case <-time.After(30 * time.Second):
-            http.Error(w, "tunnel timeout", 504)
+            http.Error(w, "tunnel timeout", http.StatusGatewayTimeout)
         }
     }
-    // Web UI static files
+
     if *enableWebUI {
-        fs := http.FileServer(http.Dir("webui"))
-        mux.Handle("/ui/", http.StripPrefix("/ui/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        fs := http.FileServer(http.Dir("../webui"))
+        mux.Handle("/ui/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
             if !isRootHost(r.Host) { proxy(w, r); return }
             http.StripPrefix("/ui/", fs).ServeHTTP(w, r)
-        })))
+        }))
     }
-    // REST admin APIs
+
     if *enableWebUI {
         mux.HandleFunc("/api/requests", func(w http.ResponseWriter, r *http.Request) {
             if !isRootHost(r.Host) { proxy(w, r); return }
@@ -207,7 +203,6 @@ func main() {
         })
     }
 
-    // Web UI websocket endpoint
     if *enableWebUI {
         mux.HandleFunc("/api/ws", func(w http.ResponseWriter, r *http.Request) {
             if !isRootHost(r.Host) { proxy(w, r); return }
@@ -226,7 +221,6 @@ func main() {
         })
     }
 
-    // WebSocket endpoint for clients to register their tunnel
     mux.HandleFunc("/connect", func(w http.ResponseWriter, r *http.Request) {
         sub := r.URL.Query().Get("subdomain")
         token := r.URL.Query().Get("token")
@@ -249,7 +243,6 @@ func main() {
         reg.Register(sub, client)
         log.Printf("subdomain %s registered", sub)
 
-        // read loop
         go func() {
             defer func() {
                 reg.Remove(sub)
@@ -270,12 +263,10 @@ func main() {
         }()
     })
 
-    // Wild-card HTTP handler – proxies requests to matching tunnel
     mux.HandleFunc("/", proxy)
 
     listenAddr := *addr
     if *useCaddy {
-        // Shift internal mux to 127.0.0.1:8081 and let Caddy listen on *addr
         listenAddr = ":8081"
         ctx := context.Background()
         domain := *caddyDomain
