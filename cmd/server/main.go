@@ -78,14 +78,93 @@ func main() {
     storeEnabled := *enableWebUI || sqlStore != nil
 
     mux := http.NewServeMux()
+
+    // Helper to determine if a request targets the root host vs a subdomain host
+    isRootHost := func(host string) bool {
+        host = strings.Split(host, ":")[0]
+        if *useCaddy && *caddyDomain != "" {
+            return host == *caddyDomain
+        }
+        sub := strings.Split(host, ".")[0]
+        if _, ok := reg.Lookup(sub); ok && strings.HasPrefix(host, sub+".") {
+            return false
+        }
+        return true
+    }
+
+    // Proxy helper: forwards the incoming HTTP request to the registered client for the subdomain
+    proxy := func(w http.ResponseWriter, r *http.Request) {
+        host := r.Host
+        sub := strings.Split(host, ".")[0]
+        cVal, ok := reg.Lookup(sub)
+        if !ok {
+            http.NotFound(w, r)
+            return
+        }
+        client := cVal.(*Client)
+
+        id := uuid.New().String()
+        reqMsg := tunnel.Request{
+            ID:     id,
+            Method: r.Method,
+            Path:   r.URL.RequestURI(),
+            Headers: func() map[string]string {
+                h := make(map[string]string)
+                for k, v := range r.Header {
+                    h[k] = strings.Join(v, ";")
+                }
+                return h
+            }(),
+        }
+        if b, err := io.ReadAll(r.Body); err == nil {
+            reqMsg.Body = b
+        }
+
+        // create response channel
+        respCh := make(chan tunnel.Response, 1)
+        client.pending.Store(id, respCh)
+        defer client.pending.Delete(id)
+
+        if err := client.conn.WriteJSON(reqMsg); err != nil {
+            http.Error(w, "tunnel write error", 502)
+            return
+        }
+
+        select {
+        case resp := <-respCh:
+            for k, v := range resp.Headers {
+                w.Header().Set(k, v)
+            }
+            w.WriteHeader(resp.Status)
+            w.Write(resp.Body)
+            entry := logstore.Entry{ID: id, Subdomain: sub, Method: r.Method, Path: r.URL.RequestURI(), Status: resp.Status, Timestamp: time.Now(), Headers: func() map[string]string {
+                    h := make(map[string]string)
+                    for k, v := range r.Header {
+                        h[k] = strings.Join(v, ";")
+                    }
+                    return h
+                }(),
+                Body: string(reqMsg.Body)}
+            memStore.Add(entry)
+            if sqlStore != nil {
+                sqlStore.Add(entry)
+            }
+        case <-time.After(30 * time.Second):
+            http.Error(w, "tunnel timeout", 504)
+        }
+    }
     // Web UI static files
     if *enableWebUI {
         fs := http.FileServer(http.Dir("webui"))
-        mux.Handle("/ui/", http.StripPrefix("/ui/", fs))
+        mux.Handle("/ui/", http.StripPrefix("/ui/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+            if !isRootHost(r.Host) { proxy(w, r); return }
+            http.StripPrefix("/ui/", fs).ServeHTTP(w, r)
+        })))
     }
     // REST admin APIs
     if *enableWebUI {
         mux.HandleFunc("/api/requests", func(w http.ResponseWriter, r *http.Request) {
+            if !isRootHost(r.Host) { proxy(w, r); return }
             if mgr != nil && mgr.Role(r.URL.Query().Get("token")) != "admin" {
                 http.Error(w, "forbidden", http.StatusForbidden)
                 return
@@ -117,6 +196,7 @@ func main() {
             json.NewEncoder(w).Encode(entries)
         })
         mux.HandleFunc("/api/tunnels", func(w http.ResponseWriter, r *http.Request) {
+            if !isRootHost(r.Host) { proxy(w, r); return }
             if mgr != nil && mgr.Role(r.URL.Query().Get("token")) != "admin" {
                 http.Error(w, "forbidden", http.StatusForbidden)
                 return
@@ -130,6 +210,7 @@ func main() {
     // Web UI websocket endpoint
     if *enableWebUI {
         mux.HandleFunc("/api/ws", func(w http.ResponseWriter, r *http.Request) {
+            if !isRootHost(r.Host) { proxy(w, r); return }
             if mgr != nil && mgr.Role(r.URL.Query().Get("token")) != "admin" {
                 http.Error(w, "forbidden", http.StatusForbidden)
                 return
@@ -190,66 +271,7 @@ func main() {
     })
 
     // Wild-card HTTP handler – proxies requests to matching tunnel
-    mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-        host := r.Host
-        sub := strings.Split(host, ".")[0]
-        cVal, ok := reg.Lookup(sub)
-        if !ok {
-            http.NotFound(w, r)
-            return
-        }
-        client := cVal.(*Client)
-
-        id := uuid.New().String()
-        reqMsg := tunnel.Request{
-            ID:     id,
-            Method: r.Method,
-            Path:   r.URL.RequestURI(),
-            Headers: func() map[string]string {
-                h := make(map[string]string)
-                for k, v := range r.Header {
-                    h[k] = strings.Join(v, ";")
-                }
-                return h
-            }(),
-        }
-        if b, err := io.ReadAll(r.Body); err == nil {
-            reqMsg.Body = b
-        }
-
-        // create response channel
-        respCh := make(chan tunnel.Response, 1)
-        client.pending.Store(id, respCh)
-        defer client.pending.Delete(id)
-
-        if err := client.conn.WriteJSON(reqMsg); err != nil {
-            http.Error(w, "tunnel write error", 502)
-            return
-        }
-
-        select {
-        case resp := <-respCh:
-            for k, v := range resp.Headers {
-                w.Header().Set(k, v)
-            }
-            w.WriteHeader(resp.Status)
-            w.Write(resp.Body)
-            entry := logstore.Entry{ID: id, Subdomain: sub, Method: r.Method, Path: r.URL.RequestURI(), Status: resp.Status, Timestamp: time.Now(), Headers: func() map[string]string {
-                    h := make(map[string]string)
-                    for k, v := range r.Header {
-                        h[k] = strings.Join(v, ";")
-                    }
-                    return h
-                }(),
-                Body: string(reqMsg.Body)}
-            memStore.Add(entry)
-            if sqlStore != nil {
-                sqlStore.Add(entry)
-            }
-        case <-time.After(30 * time.Second):
-            http.Error(w, "tunnel timeout", 504)
-        }
-    })
+    mux.HandleFunc("/", proxy)
 
     listenAddr := *addr
     if *useCaddy {
