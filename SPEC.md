@@ -105,7 +105,7 @@ Features
 Deliverables
 • Server binary with embedded Caddy
 • HTTPS works automatically
-• CLI flags: --use-caddy, --caddy-domain, --caddy-email
+• CLI flags: --https, --domain, --caddy-email
 
 Tech
 • Caddy Go module

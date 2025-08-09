@@ -30,7 +30,7 @@ It is **self-hostable**, written in Go, ships with an embedded Caddy HTTPS proxy
 | ----------- | ---------------------------------------------------------------------------------------------- |
 | Core Tunnel | bidirectional WebSocket tunnel (`portkey-client ↔ portkey-server`)                             |
 | Auth        | Static token auth with wildcard sub-domain rules (`auth.yaml`)                                 |
-| HTTPS       | Embedded Caddy v2 – automatic Let’s Encrypt (`--use-caddy`)                                    |
+| HTTPS       | Embedded Caddy v2 – automatic Let’s Encrypt (`--https`)                                        |
 | Logging     | In-memory log buffer + optional SQLite persistence (`--log-store=sqlite`, `--log-retention=N`) |
 | Web UI      | Vanilla-JS SPA at `/ui` – live stream, search, pagination, dark-mode                           |
 | Admin APIs  | `/api/requests`, `/api/tunnels`, `/api/ws` (admin-token gated)                                 |
@@ -76,16 +76,16 @@ The stack persists logs to `./data/portkey.db` (SQLite).
 
 ## Server Flags
 
-| Flag              | Default   | Description                                                |
-| ----------------- | --------- | ---------------------------------------------------------- |
-| `--auth-file`     |           | Path to `auth.yaml`; if omitted, server runs open.         |
-| `--use-caddy`     | false     | Enable embedded Caddy HTTPS reverse-proxy.                 |
-| `--port`          | 8080      | HTTP port to listen on.                                    |
-| `--domain`        | localhost | Root domain for TLS and routing (used with `--use-caddy`). |
-| `--enable-web-ui` | false     | Serve `/ui` and admin APIs.                                |
-| `--log-store`     | memory    | `memory` or `sqlite` log backend.                          |
-| `--log-db`        | logs.db   | SQLite filename when `--log-store=sqlite`.                 |
-| `--log-retention` | 0         | Purge logs older than N days (SQLite only).                |
+| Flag              | Default   | Description                                                                                                            |
+| ----------------- | --------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `--auth-file`     |           | Path to `auth.yaml`; if omitted, server runs open.                                                                     |
+| `--https`         | false     | Enable embedded Caddy HTTPS reverse-proxy.                                                                             |
+| `--port`          | 8080      | HTTP port to listen on.                                                                                                |
+| `--domain`        | localhost | Base domain for routing and TLS. Determines the root host and how subdomains are parsed (required; default localhost). |
+| `--enable-web-ui` | false     | Serve `/ui` and admin APIs.                                                                                            |
+| `--log-store`     | memory    | `memory` or `sqlite` log backend.                                                                                      |
+| `--log-db`        | logs.db   | SQLite filename when `--log-store=sqlite`.                                                                             |
+| `--log-retention` | 0         | Purge logs older than N days (SQLite only).                                                                            |
 
 ## Client Flags
 

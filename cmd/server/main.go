@@ -33,7 +33,7 @@ type Client struct {
 var (
     port = flag.Int("port", 8080, "HTTP port to listen on")
     authFile = flag.String("auth-file", "", "Path to auth token YAML file (optional)")
-    useCaddy = flag.Bool("use-caddy", false, "Enable embedded Caddy for TLS")
+    httpsEnabled = flag.Bool("https", false, "Enable embedded Caddy for TLS")
     domain = flag.String("domain", "localhost", "Base domain of the server")
     caddyEmail = flag.String("caddy-email", "", "Email for Let's Encrypt account")
     enableWebUI = flag.Bool("enable-web-ui", false, "Enable Web UI and live request logging")
@@ -275,7 +275,7 @@ func main() {
     mux.HandleFunc("/", proxy)
 
     listenAddr := ":" + strconv.Itoa(*port)
-    if *useCaddy {
+    if *httpsEnabled {
         listenAddr = "127.0.0.1:8081"
         ctx := context.Background()
         if err := caddysetup.Start(ctx, ":"+strconv.Itoa(*port), listenAddr, *domain, *caddyEmail); err != nil {
