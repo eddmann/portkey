@@ -10,7 +10,7 @@ _Not all tunnels are in Gringotts._
 
 Portkey lets developers expose a local port to the internet through an encrypted tunnel – ideal for web-hooks, previews, and live demos.
 
-## ❓ Why Portkey?
+## Why Portkey?
 
 Many teams rely on SaaS tunnelling services (Ngrok, LocalTunnel, Cloud-flared etc.) during local development. In our case we needed:
 
@@ -24,21 +24,21 @@ It is **self-hostable**, written in Go, ships with an embedded Caddy HTTPS proxy
 
 ---
 
-## ✨ What’s Inside
+## What’s Inside
 
 | Area        | Feature                                                                                        |
 | ----------- | ---------------------------------------------------------------------------------------------- |
-| Core Tunnel | bidirectional WebSocket tunnel (`portkey-client ↔ portkey-server`)                                |
+| Core Tunnel | bidirectional WebSocket tunnel (`portkey-client ↔ portkey-server`)                             |
 | Auth        | Static token auth with wildcard sub-domain rules (`auth.yaml`)                                 |
 | HTTPS       | Embedded Caddy v2 – automatic Let’s Encrypt (`--use-caddy`)                                    |
 | Logging     | In-memory log buffer + optional SQLite persistence (`--log-store=sqlite`, `--log-retention=N`) |
 | Web UI      | Vanilla-JS SPA at `/ui` – live stream, search, pagination, dark-mode                           |
 | Admin APIs  | `/api/requests`, `/api/tunnels`, `/api/ws` (admin-token gated)                                 |
-| Docker      | Scratch images (`portkey/server`, `portkey/client`) + `docker-compose.yml` stack                  |
+| Docker      | Scratch images (`portkey/server`, `portkey/client`) + `docker-compose.yml` stack               |
 
 ---
 
-## 🏁 Quick Start (Local)
+## Quick Start (Local)
 
 ```bash
 # build binaries
@@ -63,7 +63,7 @@ Visit `http://localhost:8080/ui` and use token `admin456` to watch live requests
 
 ---
 
-## 🐳 Docker / Compose
+## Docker / Compose
 
 ```bash
 # build & spin up the full stack (server+client+dummy)
@@ -74,7 +74,7 @@ The stack persists logs to `./data/portkey.db` (SQLite).
 
 ---
 
-## 🔌 Server Flags
+## Server Flags
 
 | Flag              | Default | Description                                            |
 | ----------------- | ------- | ------------------------------------------------------ |
@@ -86,7 +86,7 @@ The stack persists logs to `./data/portkey.db` (SQLite).
 | `--log-db`        | logs.db | SQLite filename when `--log-store=sqlite`.             |
 | `--log-retention` | 0       | Purge logs older than N days (SQLite only).            |
 
-## 🖥️ Client Flags
+## Client Flags
 
 | Flag           | Default   | Description                          |
 | -------------- | --------- | ------------------------------------ |
@@ -96,7 +96,7 @@ The stack persists logs to `./data/portkey.db` (SQLite).
 
 ---
 
-## 🧪 Tests & Admin APIs
+## Tests & Admin APIs
 
 ### Admin APIs (token=admin)
 
