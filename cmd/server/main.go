@@ -92,6 +92,26 @@ func main() {
         return host
     }
 
+    // On-demand TLS allowlist endpoint: approve cert only for registered subdomains (and apex)
+    mux.HandleFunc("/allow-host", func(w http.ResponseWriter, r *http.Request) {
+        h := normalizeHost(r.URL.Query().Get("host"))
+        d := *domain
+        if h == d {
+            w.WriteHeader(http.StatusOK)
+            return
+        }
+        // Only allow if exact subdomain is currently registered
+        if strings.HasSuffix(h, "."+d) {
+            sub := strings.TrimSuffix(h, "."+d)
+            if _, ok := reg.Lookup(sub); ok {
+                w.WriteHeader(http.StatusOK)
+                return
+            }
+        }
+        http.Error(w, "forbidden", http.StatusForbidden)
+        return
+    })
+
     isRootHost := func(host string) bool {
         return normalizeHost(host) == *domain
     }
@@ -278,7 +298,8 @@ func main() {
     if *httpsEnabled {
         listenAddr = "127.0.0.1:8081"
         ctx := context.Background()
-        if err := caddysetup.Start(ctx, ":"+strconv.Itoa(*port), listenAddr, *domain, *caddyEmail); err != nil {
+        ask := "http://" + listenAddr + "/allow-host"
+        if err := caddysetup.Start(ctx, ":"+strconv.Itoa(*port), listenAddr, *domain, *caddyEmail, ask); err != nil {
             log.Fatalf("caddy start: %v", err)
         }
     }
