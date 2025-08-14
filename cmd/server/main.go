@@ -113,7 +113,15 @@ func main() {
     })
 
     isRootHost := func(host string) bool {
-        return normalizeHost(host) == *domain
+        h := normalizeHost(host)
+        if h == *domain {
+            return true
+        }
+        // Treat loopback hosts as root for local development and tests
+        if h == "localhost" || h == "127.0.0.1" {
+            return true
+        }
+        return false
     }
 
     proxy := func(w http.ResponseWriter, r *http.Request) {
